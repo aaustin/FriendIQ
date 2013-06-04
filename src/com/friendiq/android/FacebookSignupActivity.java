@@ -4,6 +4,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.app.Activity;
 
 public class FacebookSignupActivity extends Activity {
@@ -14,11 +17,24 @@ public class FacebookSignupActivity extends Activity {
 	PrefHelper pHelper;
 	FacebookContacts fbContacts;
 	
+	Button cmdFacebookLogin;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_facebook_signup);
+		
+		fbContacts = new FacebookContacts(this);
+		progBar = new NetworkProgressBar(this);
+		
+		
+		cmdFacebookLogin = (Button) findViewById(R.id.cmdFBlogin);
+		
+		cmdFacebookLogin.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+			}
+		});
 	}
 
 	private void wait_on_fb() {
