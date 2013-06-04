@@ -1,6 +1,5 @@
 package com.friendiq.android;
 
-import java.util.Date;
 import java.util.List;
 import android.app.Activity;
 import android.content.Context;
@@ -80,7 +79,7 @@ public class FacebookContacts {
 			if (users != null) {
 				Runnable runnable2 = new Runnable() {
 		            public void run() {   		
-		            	ParseContacts pContacts = new ParseContacts(context, null, importFBDone);
+		            	ParseContacts pContacts = new ParseContacts(context, importFBDone);
 						pContacts.download_facebook_contacts(users);
 		            }
 				};
@@ -115,9 +114,7 @@ public class FacebookContacts {
   		public void callback(int threadID) {
   			if (threadID == 1) {
   				//Log.i(getClass().getSimpleName(), "Import done!");	
-  				Date time = new Date();
   				pHelper.set_facebook_contacts_service_status(false);
-  				pHelper.set_contacts_time(time.getTime());
   				// phone contacts parse
   			}
   		}
