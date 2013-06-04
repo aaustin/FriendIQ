@@ -10,7 +10,8 @@ public class PrefHelper {
 	private static final String APP_SHARED_PREFS = "com.friendiq.mainpref";
 
 	private static final String FIRST_BOOTUP = "first_bootup";
-	
+	private static final String FRIEND_COUNT = "friend_count";
+	private static final String GAME_IN_PROGRESS = "game_in_progress";
     private static final String FACEBOOK_ENABLE = "facebook_enable";
     private static final String FACEBOOK_FAILED = "facebook_failed";
     private static final String FACEBOOK_CONTACTS_SERVICE = "facebook_contacts_service";
@@ -36,7 +37,7 @@ public class PrefHelper {
  	    }
  	    return false;
  	}
- 	
+ 		
  	// FIRST BOOT UP
  	public boolean get_first_bootup_status() {
  		return appSharedPrefs.getBoolean(FIRST_BOOTUP, true);
@@ -46,8 +47,27 @@ public class PrefHelper {
  		prefsEditor.putBoolean(FIRST_BOOTUP, check);
  		prefsEditor.commit();
  	}
+ 	
+ 	// GAME IN PROGRESS
+ 	public boolean get_game_in_progress_status() {
+ 		return appSharedPrefs.getBoolean(GAME_IN_PROGRESS, false);
+ 	}
+ 	
+ 	public void set_game_in_progress_status(boolean status) {
+ 		prefsEditor.putBoolean(GAME_IN_PROGRESS, status);
+ 		prefsEditor.commit();
+ 	}
 
-		
+ 	// COUNT OF FRIENDS
+ 	public int get_friend_count() {
+ 		return appSharedPrefs.getInt(FRIEND_COUNT, 0);
+ 	}
+ 	
+ 	public void set_friend_count(int count) {
+ 		prefsEditor.putInt(FRIEND_COUNT, count);
+ 		prefsEditor.commit();
+ 	}
+ 	
 	// FACEBOOK SESSION
 	
 	public boolean get_facebook_enable() {

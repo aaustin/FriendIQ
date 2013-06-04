@@ -10,11 +10,11 @@ public class ParseContacts {
 	Context context;
 	ContactDataAdapter cda;
 	ImportDoneFB fbcallback;
-	
+	PrefHelper pHelper;
 	
 	public ParseContacts(Context context, ImportDoneFB fbcallback) {
 		this.context = context;
-
+		this.pHelper = new PrefHelper(context);
 		this.fbcallback = fbcallback;
 		cda = new ContactDataAdapter(context);
 	}
@@ -23,6 +23,7 @@ public class ParseContacts {
 		cda.open();
 		cda.begin_transactions();		
 
+		int count = 0;
 		Contact curr = new Contact();	
 		for (int i = 0; i < users.size(); i++) {
 			if (users.get(i).getName().length() > 0) {				
@@ -30,9 +31,11 @@ public class ParseContacts {
 				if (curr != null) {
 					curr.datasourceid = users.get(i).getId();
 					cda.add_new_contact(curr);
+					count = count + 1;
 				}
 			}
 		}
+		pHelper.set_friend_count(count);
 		
 		cda.end_transactions();		
 		cda.close();		
