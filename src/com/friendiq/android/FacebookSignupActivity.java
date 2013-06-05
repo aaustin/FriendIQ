@@ -3,6 +3,8 @@ package com.friendiq.android;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.flurry.android.FlurryAgent;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -75,4 +77,16 @@ public class FacebookSignupActivity extends Activity {
   			}
   		}, 0, UPDATE_INTERVAL);
 	}	
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
 }

@@ -1,22 +1,42 @@
 package com.friendiq.android;
 
+import com.flurry.android.FlurryAgent;
+
 import android.os.Bundle;
+import android.view.Display;
 import android.app.Activity;
-import android.view.Menu;
+import android.graphics.Point;
 
 public class GameActivity extends Activity {
 
+	GameView gameView;
+	private int userid;		
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
-	}
+		
+		gameView = (GameView) findViewById(R.id.gameView);
+		
+		Bundle extras = getIntent().getExtras();
+        this.userid = Integer.valueOf(extras.getString("userid"));
+               
+
+       
+        
+	}	
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.game, menu);
-		return true;
+	protected void onStart() {
+		super.onStart();
+		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
 	}
-
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}	
 }
