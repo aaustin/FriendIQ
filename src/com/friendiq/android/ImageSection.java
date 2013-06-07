@@ -1,13 +1,15 @@
 package com.friendiq.android;
 
-import android.content.Context;
-import android.widget.ImageView;
+import android.graphics.Rect;
 
-public class ImageSection extends ImageView {
+public class ImageSection {
 
-	public ImageSection(Context context) {
-		super(context);
-		
+	boolean isBlank;
+	public Rect source;
+	public Rect dest;
+	
+	public ImageSection() {
+		isBlank = false;
 	}
-
+	
 }
