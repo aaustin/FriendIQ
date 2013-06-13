@@ -98,6 +98,7 @@ public class SplitImageMatrix {
   			}
   		}
   		
+  		draw_sections(); 		
   		
   		preparedCallback.callback(1);
   	}

@@ -19,7 +19,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	SplitImageMatrix splitImage;
 	MatrixReady imageMatrixReady;
 	
-	
+	KeyboardWordMatrix keyboardMatrix;
 	KeyboardReady keyboardReady;
 	
 	SurfaceViewReady gameReady;
@@ -40,6 +40,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			
 			splitImage = new SplitImageMatrix(context, getHolder(), width);	
 	        splitImage.prepare_matrix(index, imageMatrixReady);
+	        
+	        keyboardMatrix = new KeyboardWordMatrix(context, getHolder(), width);
+	        keyboardMatrix.prepare_keyboard(index, keyboardReady);
 		}
         
 		return created;
