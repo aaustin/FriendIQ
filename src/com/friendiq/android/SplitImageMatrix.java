@@ -93,29 +93,7 @@ public class SplitImageMatrix {
   			}
   		}
   		
-  		draw_sections(); 		
-  		
   		preparedCallback.callback(1);
   	}
 
-  	private void draw_sections() {  		
-    	Canvas c = null;
-        
-        try {
-            c = surfaceHolder.lockCanvas(null);
-            synchronized (surfaceHolder) {
-            	for (int x = 0; x < NUMBER_SQUARE; x++) {
-            		for (int y = 0; y < NUMBER_SQUARE; y++) {
-            			if (!imgMatrix[x][y].isBlank)            			
-            				c.drawBitmap(basePicture, imgMatrix[x][y].source, imgMatrix[x][y].dest, null);
-            		}
-            	}
-            	
-            }
-        } finally {                
-            if (c != null) {
-            	surfaceHolder.unlockCanvasAndPost(c);
-            }
-        }
-  	}
 }

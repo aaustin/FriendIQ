@@ -1,10 +1,12 @@
 package com.friendiq.android;
 
 import com.facebook.Session;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import com.flurry.android.FlurryAgent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -23,7 +25,6 @@ public class FacebookSignupActivity extends Activity {
 	Timer fbtimer;
 	PrefHelper pHelper;
 	FacebookContacts fbContacts;
-	PhoneCallback phoneCallback;
 	ParseContacts parser;
 	
 	TextView cmdPhoneContacts;
@@ -35,36 +36,47 @@ public class FacebookSignupActivity extends Activity {
 		setContentView(R.layout.activity_facebook_signup);
 		pHelper = new PrefHelper(this);
 		context = this;
+				
+		parser = new ParseContacts(context, null);		
 		
-		if (pHelper.get_first_bootup_status()) {
-			//fbContacts = new FacebookContacts(this, savedInstanceState);	
-			progBar = new NetworkProgressBar(this);
-			phoneCallback = new PhoneCallback();
-			
-			cmdPhoneContacts = (TextView) findViewById(R.id.txtContacts);
-			cmdPhoneContacts.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					progBar.show("connecting to contacts...");
-					pHelper.set_facebook_contacts_service_status(true);
-					parser = new ParseContacts(context, null, phoneCallback);
+		if (!pHelper.get_phone_download_status()) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
 					parser.download_phone_contacts();
-					wait_on_fb();
-				}
-			});
-			cmdFacebookLogin = (Button) findViewById(R.id.cmdFBlogin);		
-			cmdFacebookLogin.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					
-					progBar.show("connecting to Facebook...");
-					pHelper.set_facebook_contacts_service_status(true);
-					//fbContacts.login_and_download_facebook();
-					wait_on_fb();
-				}
-			});
-		} else {
-			start_game();
+					pHelper.set_phone_download_status(true);
+				}				
+			}).start();
+		}
+		
+		cmdPhoneContacts = (TextView) findViewById(R.id.txtContacts);
+		cmdPhoneContacts.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				start_game();
+			}
+		});
+		
+		fbContacts = new FacebookContacts(this, savedInstanceState);	
+		progBar = new NetworkProgressBar(this);						
+			
+		
+		cmdFacebookLogin = (Button) findViewById(R.id.cmdFBlogin);		
+		cmdFacebookLogin.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {					
+				progBar.show("connecting to Facebook...");
+				pHelper.set_facebook_contacts_service_status(true);
+				fbContacts.login_and_download_facebook();
+				wait_on_fb();
+			}
+		});
+		
+		if (!pHelper.get_first_bootup_status()) {			
+			if (pHelper.get_facebook_enable())
+				start_game();
 		}
 	}
+	
+	
 
 	private void start_game() {
 		Intent i = new Intent(getApplicationContext(), GameActivity.class);
@@ -81,14 +93,14 @@ public class FacebookSignupActivity extends Activity {
              		public void run() { 		 			
              			if (!pHelper.get_facebook_contact_service_status()) {	
              				progBar.show("finished!");
-             				//Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");
+             				Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");
              				start_game();
              				pHelper.set_first_bootup_status(false);
              				progBar.hide();
              				fbtimer.cancel();
              			} else if (pHelper.get_facebook_failed()) {
              				progBar.show("failed to connect!");
-             				//Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");             				
+             				Log.i(DatabaseHelper.class.getName(),"FAILED FB DOWNLOAD");             				
              				progBar.hide();
              				fbtimer.cancel();
              			}
@@ -98,24 +110,18 @@ public class FacebookSignupActivity extends Activity {
   		}, 0, UPDATE_INTERVAL);
 	}	
 	
-	public class PhoneCallback implements CallBack {
-		@Override
-		public void callback(int threadID) {
-			// TODO Auto-generated method stub
-			
-		}		
-	}
 	
+		
 	@Override
 	protected void onStart() {
 		super.onStart();
-		//FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
+		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
 	}
 	
 	@Override
 	protected void onStop() {
 		super.onStop();
-		//FlurryAgent.onEndSession(this);
+		FlurryAgent.onEndSession(this);
 	}
 	
 	@Override

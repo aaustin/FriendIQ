@@ -3,7 +3,6 @@ package com.friendiq.android;
 import java.util.List;
 import com.facebook.model.GraphUser;
 import com.friendiq.android.FacebookContacts.ImportDoneFB;
-import com.friendiq.android.FacebookSignupActivity.PhoneCallback;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,14 +17,12 @@ public class ParseContacts {
 	Context context;
 	ContactDataAdapter cda;
 	ImportDoneFB fbcallback;
-	PhoneCallback phoneCallback;
 	PrefHelper pHelper;
 	
-	public ParseContacts(Context context, ImportDoneFB fbcallback, PhoneCallback phoneCallback) {
+	public ParseContacts(Context context, ImportDoneFB fbcallback) {
 		this.context = context;
 		this.pHelper = new PrefHelper(context);
 		this.fbcallback = fbcallback;
-		this.phoneCallback = phoneCallback;
 		cda = new ContactDataAdapter(context);
 	}
 	
@@ -75,17 +72,16 @@ public class ParseContacts {
     		int idCol = data.getColumnIndex(StructuredName.CONTACT_ID);
     		int firstCol = data.getColumnIndex(StructuredName.GIVEN_NAME);
     		int lastCol = data.getColumnIndex(StructuredName.FAMILY_NAME);
-    		int imgCol = data.getColumnIndex(Photo.PHOTO);
     		
 	   		while(data.moveToNext()) { 
 	   			currContact.datasourceid = String.valueOf(data.getInt(idCol));
 	   			currContact.firstname = data.getString(firstCol);
 	   			currContact.lastname = data.getString(lastCol);
-	   			if (currContact.firstname == null || currContact.lastname == null || has_photo(data.getInt(idCol))) {
-	   				Log.i(getClass().getName(),"Bad contact");
+	   			if (currContact.firstname == null || currContact.lastname == null) {
+	   				//Log.i(getClass().getName(),"Bad contact");
 	   				goodData = false;
 	   			} else if (currContact.firstname.length() > 0 && currContact.lastname.length() > 0){
-	   				Log.i(getClass().getName(),"Assigned name: " + currContact.firstname + " " + currContact.lastname);
+	   				//Log.i(getClass().getName(),"Assigned name: " + currContact.firstname + " " + currContact.lastname);
 		   			currContact.firstname = currContact.firstname.substring(0, 1).toUpperCase() + currContact.firstname.substring(1);
 		   			currContact.lastname = currContact.lastname.substring(0, 1).toUpperCase() + currContact.lastname.substring(1);
 		   			currContact.firstname = currContact.firstname.replace("'", "''");
@@ -109,9 +105,6 @@ public class ParseContacts {
 		cda.close();		
 	
 		pHelper.set_friend_count(count);
-		pHelper.set_facebook_contacts_service_status(false);
-		
-    	phoneCallback.callback(1);
 	}
 	
 	public void download_facebook_contacts(List<GraphUser> users) {
@@ -125,6 +118,7 @@ public class ParseContacts {
 			if (users.get(i).getName().length() > 0) {				
 				curr = solve_names(users.get(i).getName(), curr);			
 				if (curr != null) {
+					//Log.i(getClass().getName(),"FB: Assigned name: " + curr.firstname + " " + curr.lastname);
 					curr.datasourceid = users.get(i).getId();
 					
 					cda.add_new_contact(curr);

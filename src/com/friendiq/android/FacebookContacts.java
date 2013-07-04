@@ -14,7 +14,7 @@ import com.facebook.SessionState;
 
 public class FacebookContacts {
 
-	public static final String APP_ID = "557689114273505";
+	public static final String APP_ID = "177691269059361";
 	
 	public static Session fbSession;
 
@@ -78,7 +78,7 @@ public class FacebookContacts {
 			if (users != null) {
 				Runnable runnable2 = new Runnable() {
 		            public void run() {   		
-		            	ParseContacts pContacts = new ParseContacts(context, importFBDone, null);
+		            	ParseContacts pContacts = new ParseContacts(context, importFBDone);
 						pContacts.download_facebook_contacts(users);
 		            }
 				};

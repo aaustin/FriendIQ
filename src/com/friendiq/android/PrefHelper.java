@@ -11,6 +11,7 @@ public class PrefHelper {
 
 	private static final String FIRST_BOOTUP = "first_bootup";
 	private static final String FRIEND_COUNT = "friend_count";
+	private static final String DOWNLOADED_PHONE = "phone_download";
 	private static final String GAME_IN_PROGRESS = "game_in_progress";
     private static final String FACEBOOK_ENABLE = "facebook_enable";
     private static final String FACEBOOK_FAILED = "facebook_failed";
@@ -47,6 +48,16 @@ public class PrefHelper {
  		prefsEditor.putBoolean(FIRST_BOOTUP, check);
  		prefsEditor.commit();
  	}
+ 	
+ // FIRST BOOT UP
+  	public boolean get_phone_download_status() {
+  		return appSharedPrefs.getBoolean(DOWNLOADED_PHONE, false);
+  	}
+  		
+  	public void set_phone_download_status(boolean check) {
+  		prefsEditor.putBoolean(DOWNLOADED_PHONE, check);
+  		prefsEditor.commit();
+  	}
  	
  	// GAME IN PROGRESS
  	public boolean get_game_in_progress_status() {

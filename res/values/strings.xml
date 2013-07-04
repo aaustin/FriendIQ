@@ -2,10 +2,8 @@
 <resources>
 
     <string name="app_name">FriendIQ</string>
-    <string name="app_id">557689114273505</string>
+    <string name="app_id">177691269059361</string>
     <string name="title_activity_game">GameActivity</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="flurry_id">946C2G784JXYDMY7FY62</string>
 
 </resources>

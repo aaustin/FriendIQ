@@ -215,7 +215,6 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020020;
     }
     public static final class id {
-        public static final int action_settings=0x7f04001b;
         public static final int cmdFBlogin=0x7f040003;
         public static final int com_facebook_login_activity_progress_bar=0x7f040008;
         public static final int com_facebook_picker_activity_circle=0x7f040007;
@@ -261,11 +260,7 @@ containing a value of this type.
         public static final int com_facebook_placepickerfragment_list_row=0x7f03000d;
         public static final int com_facebook_usersettingsfragment=0x7f03000e;
     }
-    public static final class menu {
-        public static final int game=0x7f090000;
-    }
     public static final class string {
-        public static final int action_settings=0x7f05001c;
         public static final int app_id=0x7f05001a;
         public static final int app_name=0x7f050019;
         public static final int com_facebook_choose_friends=0x7f05000f;
@@ -293,8 +288,7 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_log_in_button=0x7f050008;
         public static final int com_facebook_usersettingsfragment_logged_in=0x7f050009;
         public static final int com_facebook_usersettingsfragment_not_logged_in=0x7f05000a;
-        public static final int flurry_id=0x7f05001e;
-        public static final int hello_world=0x7f05001d;
+        public static final int flurry_id=0x7f05001c;
         public static final int title_activity_game=0x7f05001b;
     }
     public static final class style {
