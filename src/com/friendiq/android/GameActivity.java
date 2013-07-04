@@ -41,12 +41,12 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
+		//FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
 	}
 	
 	@Override
 	protected void onStop() {
 		super.onStop();
-		FlurryAgent.onEndSession(this);
+		//FlurryAgent.onEndSession(this);
 	}	
 }

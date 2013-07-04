@@ -7,6 +7,7 @@ public class Contact {
 	public String firstname;
 	public String lastname;
 	public String datasourceid;
+	public String datasource;
 	public Bitmap bm;
 	
 	public Contact() {
@@ -14,14 +15,16 @@ public class Contact {
 		this.firstname = "none";
 		this.lastname = "none";
 		this.datasourceid = "none";
+		this.datasource = "none";
 		this.bm = null;
 	}
 	
-	public Contact(int index, String firstname, String lastname, String datasourceid) {
+	public Contact(int index, String firstname, String lastname, String datasourceid, String datasource) {
 		this.index = index;		
 		this.firstname = firstname;
 		this.lastname = lastname;		
 		this.datasourceid = datasourceid;		
+		this.datasource = datasource;
 	}
 	
 	public Contact clone() {
@@ -29,7 +32,8 @@ public class Contact {
 		con.index = this.index;
 		con.firstname = this.firstname;
 		con.lastname = this.lastname;
-		con.datasourceid = this.datasourceid;	
+		con.datasourceid = this.datasourceid;
+		con.datasource = this.datasource;
 		con.bm = this.bm;
 		return con;
 	}

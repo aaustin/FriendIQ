@@ -64,7 +64,7 @@ public class PrefHelper {
  	}
  	
  	public void set_friend_count(int count) {
- 		prefsEditor.putInt(FRIEND_COUNT, count);
+ 		prefsEditor.putInt(FRIEND_COUNT, get_friend_count() + count);
  		prefsEditor.commit();
  	}
  	

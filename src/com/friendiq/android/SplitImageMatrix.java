@@ -3,20 +3,17 @@ package com.friendiq.android;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import com.friendiq.android.GameView.MatrixReady;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.view.SurfaceHolder;
 
 public class SplitImageMatrix {
 	private static final int GAP_WIDTH = 5;
-	private static final int NUMBER_SQUARE = 5;
+	public static final int NUMBER_SQUARE = 5;
 	private static final int MIX_PASSES = 3;
 		
-	SurfaceHolder surfaceHolder;
 	Context context;
 	int screenWidth;
 		
@@ -29,8 +26,7 @@ public class SplitImageMatrix {
 	MatrixReady preparedCallback;
 	Bitmap basePicture;
 	
-	public SplitImageMatrix(Context context, SurfaceHolder surfaceHolder, int screenWidth) {
-		this.surfaceHolder = surfaceHolder;
+	public SplitImageMatrix(Context context, int screenWidth) {
 		this.context = context;
 		this.screenWidth = screenWidth;
 		
@@ -57,6 +53,7 @@ public class SplitImageMatrix {
   		
   		basePicture = Bitmap.createScaledBitmap(imgGrabber.contact.bm, imageWidth, imageWidth, false);
   		
+  		// cut up the base image
   		int left = 0;
   		int top = 0;
   		ArrayList<ImageSection> tempSections = new ArrayList<ImageSection>();
@@ -71,6 +68,7 @@ public class SplitImageMatrix {
   		}
   		tempSections.get(tempSections.size()-1).isBlank = true;
   		
+  		// randomize the sections
   		Random ran = new Random();
   		ArrayList<ImageSection> mixupSections;
   		int mixCount = 0;
@@ -84,6 +82,7 @@ public class SplitImageMatrix {
   			mixupSections = null;
   		}
   		
+  		// pick the layout destination
   		int base = GAP_WIDTH;
   		for (int x = 0; x < NUMBER_SQUARE; x++) {
   			for (int y = 0; y < NUMBER_SQUARE; y++) {
@@ -94,8 +93,29 @@ public class SplitImageMatrix {
   			}
   		}
   		
+  		draw_sections(); 		
   		
   		preparedCallback.callback(1);
   	}
 
+  	private void draw_sections() {  		
+    	Canvas c = null;
+        
+        try {
+            c = surfaceHolder.lockCanvas(null);
+            synchronized (surfaceHolder) {
+            	for (int x = 0; x < NUMBER_SQUARE; x++) {
+            		for (int y = 0; y < NUMBER_SQUARE; y++) {
+            			if (!imgMatrix[x][y].isBlank)            			
+            				c.drawBitmap(basePicture, imgMatrix[x][y].source, imgMatrix[x][y].dest, null);
+            		}
+            	}
+            	
+            }
+        } finally {                
+            if (c != null) {
+            	surfaceHolder.unlockCanvasAndPost(c);
+            }
+        }
+  	}
 }

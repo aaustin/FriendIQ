@@ -66,7 +66,7 @@ public class ImageGrabber {
 	
 	private Contact grab_random_contact(int index) {
 		ContactDataAdapter cda = new ContactDataAdapter(context);
-		cda.open();
+		cda.open_for_read();
 		
 		if (index < 0) {
 			Random ran = new Random();

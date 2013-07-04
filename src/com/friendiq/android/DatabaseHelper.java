@@ -13,6 +13,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	  public static final String COLUMN_FIRSTNAME = "firstname";
 	  public static final String COLUMN_LASTNAME = "lastname";
 	  public static final String COLUMN_SOURCE_ID = "datasourceid";
+	  public static final String COLUMN_SOURCE = "datasource";
 		  
 	  private static final String DATABASE_NAME = "catchup.db";
 	  private static final int DATABASE_VERSION = 1;
@@ -23,7 +24,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		  + COLUMN_ID + " integer primary key autoincrement, " 
 	      + COLUMN_FIRSTNAME + " text not null, "
 	      + COLUMN_LASTNAME + " text not null, "
-	      + COLUMN_SOURCE_ID + " text not null"
+	      + COLUMN_SOURCE_ID + " text not null, "
+	      + COLUMN_SOURCE + " text not null"
 	      + ");";
 	
 	  public DatabaseHelper(Context context) {

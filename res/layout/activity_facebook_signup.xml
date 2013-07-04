@@ -18,4 +18,14 @@
         android:text="Login with Facebook"
         android:textColor="#c7cdd0" />
 
+    <TextView
+        android:id="@+id/txtContacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cmdFBlogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Or just use phone contacts"
+        android:textColor="#c7cdd0" />
+
 </RelativeLayout>
