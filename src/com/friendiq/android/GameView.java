@@ -19,7 +19,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	boolean created;
 	boolean prepared;
 	
+	int contactIndex;
 	Contact contact;
+	ImageReady imgReady;
 	
 	SplitImageMatrix splitImage;
 	MatrixReady imageMatrixReady;
@@ -40,28 +42,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	public boolean initialize_game(int index, SurfaceViewReady gameReady) {
-		if (created) {
+		if (!created) {
 			this.gameReady = gameReady;
 			
 			ContactDataAdapter cda = new ContactDataAdapter(context);
 			cda.open_for_read();
 			if (index < 0) {
 				Random ran = new Random();
-				contact = cda.get_contact(ran.nextInt(pHelper.get_friend_count()));
+				contactIndex = ran.nextInt(pHelper.get_friend_count());
+				contact = cda.get_contact(contactIndex);
 			} else {
 				contact = cda.get_contact(index);
 			}
 			cda.close();
+			imgReady = new ImageReady();
+			contact.download_photo(context, imgReady);
 			
-			imageMatrixReady = new MatrixReady();
-			keyboardReady = new KeyboardReady();
-			
-			splitImage = new SplitImageMatrix(context, width);	
-	        splitImage.prepare_matrix(index, imageMatrixReady);
-	        
-	        keyManager = new KeyManager(context, width);
-	        keyManager.prepare_keys(contact.firstname, keyboardReady);
-
 		}
         
 		return created;
@@ -81,9 +77,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   		}
   	}
   	
+  	public class ImageReady implements CallBack {
+  		public void callback(int threadID) {
+  			if (threadID == 0) {
+  				ContactDataAdapter cda = new ContactDataAdapter(context);
+  				cda.open_for_read();  				
+				Random ran = new Random();
+				contactIndex = ran.nextInt(pHelper.get_friend_count());
+  				contact = cda.get_contact(contactIndex);
+  				cda.close();
+  				imgReady = new ImageReady();
+  				contact.download_photo(context, imgReady);
+  			} else {
+  				imageMatrixReady = new MatrixReady();
+  				keyboardReady = new KeyboardReady();
+  				
+  				splitImage = new SplitImageMatrix(context, width);	
+  		        splitImage.prepare_matrix(contact, imageMatrixReady);
+  		        
+  		        keyManager = new KeyManager(context, width);
+  		        keyManager.prepare_keys(contact.firstname, keyboardReady);
+  			}
+  		}
+  	}
+  	
   	private void game_is_ready() {
-  		if (prepared) {
-  			
+  		if (prepared) {  			
   			gameReady.callback(1);
   		} else
   			prepared = true;

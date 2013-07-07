@@ -14,6 +14,8 @@ public class SplitImageMatrix {
 	public static final int NUMBER_SQUARE = 5;
 	private static final int MIX_PASSES = 3;
 		
+	Contact contact;
+	
 	Context context;
 	int screenWidth;
 		
@@ -21,22 +23,17 @@ public class SplitImageMatrix {
 	
 	ImageSection[][] imgMatrix;
 	
-	ImageGrabber imgGrabber;
-	ImageAcquired acquiredCallback;
 	MatrixReady preparedCallback;
 	Bitmap basePicture;
 	
 	public SplitImageMatrix(Context context, int screenWidth) {
 		this.context = context;
 		this.screenWidth = screenWidth;
-		
-		acquiredCallback = new ImageAcquired();		
-		imgGrabber = new ImageGrabber(context);		
 	}
 	
-	public void prepare_matrix(int index, MatrixReady preparedReady) {
-		imgGrabber.grab_image(index, acquiredCallback);
+	public void prepare_matrix(Contact contact, MatrixReady preparedReady) {
 		this.preparedCallback = preparedReady;
+		this.contact = contact;
 	}
 	
 	// interface implementation image download callback
@@ -51,7 +48,7 @@ public class SplitImageMatrix {
   		int imageWidth = sectionSideLength * NUMBER_SQUARE;  	
   		imgMatrix = new ImageSection[NUMBER_SQUARE][NUMBER_SQUARE];
   		
-  		basePicture = Bitmap.createScaledBitmap(imgGrabber.contact.bm, imageWidth, imageWidth, false);
+  		basePicture = Bitmap.createScaledBitmap(contact.bm, imageWidth, imageWidth, false);
   		
   		// cut up the base image
   		int left = 0;
