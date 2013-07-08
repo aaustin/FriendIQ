@@ -3,9 +3,7 @@ package com.friendiq.android;
 import com.flurry.android.FlurryAgent;
 
 import android.os.Bundle;
-import android.view.Display;
 import android.app.Activity;
-import android.graphics.Point;
 
 public class GameActivity extends Activity {
 	

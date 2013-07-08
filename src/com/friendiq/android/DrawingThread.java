@@ -24,8 +24,8 @@ public class DrawingThread extends Thread {
 	}
 	
 	private void draw_pictures(Canvas canvas) {
-		for (int x = 0; x < imageMatrix.NUMBER_SQUARE; x++) {
-			for (int y = 0; y < imageMatrix.NUMBER_SQUARE; y++) {
+		for (int x = 0; x < SplitImageMatrix.NUMBER_SQUARE; x++) {
+			for (int y = 0; y < SplitImageMatrix.NUMBER_SQUARE; y++) {
 				canvas.drawBitmap(imageMatrix.basePicture, imageMatrix.imgMatrix[x][y].source, imageMatrix.imgMatrix[x][y].dest, null);
 			}
 		}

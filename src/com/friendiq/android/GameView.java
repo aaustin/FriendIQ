@@ -48,9 +48,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			ContactDataAdapter cda = new ContactDataAdapter(context);
 			cda.open_for_read();
 			if (index < 0) {
-				Random ran = new Random();
-				contactIndex = ran.nextInt(pHelper.get_friend_count());
-				contact = cda.get_contact(contactIndex);
+				boolean loop = true;
+				while (loop) {
+					Random ran = new Random();
+					contactIndex = ran.nextInt(pHelper.get_friend_count());
+					contact = cda.get_contact(contactIndex);
+					if (contact.firstname.length() <= KeyManager.NUM_LETTER_ROWS*KeyManager.NUM_LETTERS_IN_ROW)
+						loop = false;
+				}
 			} else {
 				contact = cda.get_contact(index);
 			}
@@ -82,9 +87,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   			if (threadID == 0) {
   				ContactDataAdapter cda = new ContactDataAdapter(context);
   				cda.open_for_read();  				
-				Random ran = new Random();
-				contactIndex = ran.nextInt(pHelper.get_friend_count());
-  				contact = cda.get_contact(contactIndex);
+  				boolean loop = true;
+				while (loop) {
+					Random ran = new Random();
+					contactIndex = ran.nextInt(pHelper.get_friend_count());
+					contact = cda.get_contact(contactIndex);
+					if (contact.firstname.length() <= KeyManager.NUM_LETTER_ROWS*KeyManager.NUM_LETTERS_IN_ROW)
+						loop = false;
+				}
   				cda.close();
   				imgReady = new ImageReady();
   				contact.download_photo(context, imgReady);
@@ -92,10 +102,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   				imageMatrixReady = new MatrixReady();
   				keyboardReady = new KeyboardReady();
   				
-  				splitImage = new SplitImageMatrix(context, width);	
+  				splitImage = new SplitImageMatrix(context, height, width);	
   		        splitImage.prepare_matrix(contact, imageMatrixReady);
   		        
-  		        keyManager = new KeyManager(context, width);
+  		        keyManager = new KeyManager(context, height, width);
   		        keyManager.prepare_keys(contact.firstname, keyboardReady);
   			}
   		}
