@@ -127,12 +127,13 @@ public class ContactDataAdapter {
 		 
 		 Cursor currcursor = db.query(DatabaseHelper.TABLE_CONTACTS,
 			        contactColumns, DatabaseHelper.COLUMN_ID + "=" + index, null, null, null, null); 
-		 currcursor.moveToFirst();
-		 currContact.index = index;
-		 currContact.firstname = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_FIRSTNAME));
-		 currContact.lastname = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_LASTNAME));		
-		 currContact.datasourceid = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE_ID));
-		 currContact.datasource = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE));
+		 if (currcursor.moveToFirst()) {
+			 currContact.index = index;
+			 currContact.firstname = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_FIRSTNAME));
+			 currContact.lastname = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_LASTNAME));		
+			 currContact.datasourceid = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE_ID));
+			 currContact.datasource = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE));
+		 }
 		 currcursor.close();
 		 
 		 return currContact;

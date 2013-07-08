@@ -38,15 +38,16 @@ public class FacebookSignupActivity extends Activity {
 		context = this;
 				
 		parser = new ParseContacts(context, null);		
-		
 		if (!pHelper.get_phone_download_status()) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					parser.download_phone_contacts();
-					pHelper.set_phone_download_status(true);
-				}				
-			}).start();
+			if (!pHelper.get_phone_download_status()) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						parser.download_phone_contacts();
+						pHelper.set_phone_download_status(true);
+					}				
+				}).start();
+			}
 		}
 		
 		cmdPhoneContacts = (TextView) findViewById(R.id.txtContacts);

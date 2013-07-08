@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import android.util.Log;
 
 public class ParseContacts {
 	

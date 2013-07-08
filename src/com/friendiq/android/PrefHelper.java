@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class PrefHelper {
 	private static final String APP_SHARED_PREFS = "com.friendiq.mainpref";
@@ -75,6 +76,7 @@ public class PrefHelper {
  	}
  	
  	public void set_friend_count(int count) {
+ 		Log.i(DatabaseHelper.class.getName(),"setting friend count to : " + count);
  		prefsEditor.putInt(FRIEND_COUNT, get_friend_count() + count);
  		prefsEditor.commit();
  	}

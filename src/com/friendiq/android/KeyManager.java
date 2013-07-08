@@ -14,27 +14,25 @@ public class KeyManager {
 
 	private static final int MIX_PASSES = 3;
 	
-	static final double BOT_MARGIN = 0.06;
-	static final double SIDE_MARGIN = 0.03;
-	static final double BUTTON_KEY_MARGIN = 0.02;
-	static final double BOT_KEY_MARGIN = 0.01;
-	static final double BOT_KEY_SIZE = 0.5;
-	static final double GUESS_BOT_KEY_RATIO = 0.8;
-	static final double GUESS_KEY_MARGIN = 0.008;
-	static final double GUESS_BOT_MARGIN = 0.05;
+	private static final double BOT_MARGIN = 0.06;
+	private static final double SIDE_MARGIN = 0.03;
+	private static final double BUTTON_KEY_MARGIN = 0.02;
+	private static final double BOT_KEY_MARGIN = 0.01;
+	private static final double GUESS_BOT_KEY_RATIO = 0.8;
+	private static final double GUESS_KEY_MARGIN = 0.008;
+	private static final double GUESS_BOT_MARGIN = 0.05;
 	
-	int botMargin;
-	int sideMargin;
-	int buttonKeyMargin;
-	int botKeyMargin;
-	int botKeySize;
-	int guessKeyToBotRatio;
-	int guessKeyMargin;
-	int guessBottomMargin;
+	private int botMargin;
+	private int sideMargin;
+	private int buttonKeyMargin;
+	private int botKeyMargin;
+	private int guessKeyToBotRatio;
+	private int guessKeyMargin;
+	private int guessBottomMargin;
 	
 	Context context;
-	int screenWidth;
-	int screenHeight;
+	private int screenWidth;
+	private int screenHeight;
 	
 	static String[] allLetters = {
 		"A", 
@@ -58,10 +56,10 @@ public class KeyManager {
 		"T",
 		"U"};
 	
-	String firstname;
+	private String firstname;
 	
-	int botKeySide;
-	int guessKeySide;
+	private int botKeySide;
+	private int guessKeySide;
 	
 	Rect cmdGiveLetter;
 	Rect cmdDeleteLetter;
@@ -82,12 +80,11 @@ public class KeyManager {
 		this.sideMargin = (int) (screenWidth*SIDE_MARGIN);
 		this.buttonKeyMargin = (int) (screenWidth*BUTTON_KEY_MARGIN);
 		this.botKeyMargin = (int) (screenWidth*BOT_KEY_MARGIN);
-		this.botKeySize = (int) (screenWidth*BOT_KEY_SIZE);
 		this.guessKeyToBotRatio = (int) (screenWidth*GUESS_BOT_KEY_RATIO);
 		this.guessKeyMargin = (int) (screenWidth*GUESS_KEY_MARGIN);
 		this.guessBottomMargin = (int) (screenHeight*GUESS_BOT_MARGIN);
 		
-		this.botKeySide = botKeySize / NUM_LETTERS_IN_ROW;
+		this.botKeySide = (screenWidth - 2 * this.sideMargin - this.buttonKeyMargin - (NUM_LETTERS_IN_ROW - 1) * this.botKeyMargin) / (NUM_LETTERS_IN_ROW + 1);
 		this.guessKeySide = this.botKeySide * this.guessKeyToBotRatio;
 	}
 	
@@ -100,7 +97,25 @@ public class KeyManager {
 			left = left + guessKeySide + guessKeyMargin;
 		}
 		
+		top = top + guessBottomMargin + guessKeySide;
+		left = sideMargin;
+		for (int i = 0; i < NUM_LETTERS_IN_ROW; i++) {
+			sourceLetters[i] = new Rect(left, top, left + botKeySide, top + botKeySide);
+			left = left + botKeySide + botKeyMargin;
+		}
 		
+		left = left - botKeyMargin + buttonKeyMargin;
+		cmdGiveLetter = new Rect(left, top, left + botKeySide, top + botKeySide);
+		
+		top = top + botKeyMargin + botKeySide;
+		left = sideMargin;
+		for (int i = NUM_LETTERS_IN_ROW; i < (NUM_LETTER_ROWS * NUM_LETTERS_IN_ROW); i++) {
+			sourceLetters[i] = new Rect(left, top, left + botKeySide, top + botKeySide);
+			left = left + botKeySide + botKeyMargin;
+		}
+		
+		left = left - botKeyMargin + buttonKeyMargin;
+		cmdDeleteLetter = new Rect(left, top, left + botKeySide, top + botKeySide);				
 	}
 	
 	private void init_letters() {

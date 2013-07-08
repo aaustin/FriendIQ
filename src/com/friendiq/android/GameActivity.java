@@ -32,7 +32,13 @@ public class GameActivity extends Activity {
 	// interface implementation image matrix ready callback
   	public class SurfaceViewReady implements CallBack {
   		public void callback(int threadID) {
-  			progBar.change_message("finished!");
+  			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					progBar.change_message("finished!");
+					progBar.hide();
+				}  				
+  			});  			
   		}
   	}
 

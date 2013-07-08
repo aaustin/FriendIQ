@@ -7,6 +7,7 @@ import com.friendiq.android.GameView.MatrixReady;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.util.Log;
 
 public class SplitImageMatrix {
 	
@@ -56,7 +57,10 @@ public class SplitImageMatrix {
   		imgMatrix = new ImageSection[NUMBER_SQUARE][NUMBER_SQUARE];
   		
   		basePicture = Bitmap.createScaledBitmap(contact.bm, imageWidth, imageWidth, false);
+  		Log.i(DatabaseHelper.class.getName(),"just created new bmp with " + imageWidth + "x" + imageWidth);
   		
+  		if (contact.bm == null)
+  			Log.i(DatabaseHelper.class.getName(),"NULL BMP");
   		// cut up the base image
   		int left = 0;
   		int top = 0;
@@ -67,6 +71,7 @@ public class SplitImageMatrix {
   				top = y*sectionSideLength;
   				ImageSection img = new ImageSection();
   	  			img.source = new Rect(left, top, left + sectionSideLength, top + sectionSideLength);
+  	  			Log.i(DatabaseHelper.class.getName(),"source section = " + img.source.toShortString());
   	  			tempSections.add(img);
   			}  			
   		}
@@ -86,7 +91,7 @@ public class SplitImageMatrix {
   			mixupSections = null;
   			mixCount = mixCount + 1;
   		}
-  		
+  		  		
   		// pick the layout destination
   		int baseX = (screenWidth - imageWidth)/2;
   		int baseY = topMargin;
@@ -96,6 +101,7 @@ public class SplitImageMatrix {
   				top = y*sectionSideLength + baseY + y*sectionMargin;
   				imgMatrix[x][y] = tempSections.remove(0);
   				imgMatrix[x][y].dest = new Rect(left, top, left + sectionSideLength, top + sectionSideLength);
+  				Log.i(DatabaseHelper.class.getName(),"Dests section = " + imgMatrix[x][y].dest.toShortString());
   			}
   		}
   		
