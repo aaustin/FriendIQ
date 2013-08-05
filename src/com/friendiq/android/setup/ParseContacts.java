@@ -1,8 +1,10 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import java.util.List;
 import com.facebook.model.GraphUser;
-import com.friendiq.android.FacebookContacts.ImportDoneFB;
+import com.friendiq.android.Contact;
+import com.friendiq.android.PrefHelper;
+import com.friendiq.android.setup.FacebookContacts.ImportDoneFB;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -73,6 +75,7 @@ public class ParseContacts {
     		int lastCol = data.getColumnIndex(StructuredName.FAMILY_NAME);
     		
 	   		while(data.moveToNext()) { 
+	   			//currContact.index = data.getLong(idCol);
 	   			currContact.datasourceid = String.valueOf(data.getInt(idCol));
 	   			currContact.firstname = data.getString(firstCol);
 	   			currContact.lastname = data.getString(lastCol);
@@ -119,6 +122,7 @@ public class ParseContacts {
 				if (curr != null) {
 					//Log.i(getClass().getName(),"FB: Assigned name: " + curr.firstname + " " + curr.lastname);
 					curr.datasourceid = users.get(i).getId();
+					//curr.index = Long.valueOf(users.get(i).getId());
 					
 					cda.add_new_contact(curr);
 					count = count + 1;

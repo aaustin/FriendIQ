@@ -1,10 +1,18 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import com.facebook.Session;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import com.flurry.android.FlurryAgent;
+import com.friendiq.android.GameActivity;
+import com.friendiq.android.PrefHelper;
+import com.friendiq.android.R;
+import com.friendiq.android.R.id;
+import com.friendiq.android.R.layout;
+import com.friendiq.android.R.string;
+import com.friendiq.android.helpers.NetworkProgressBar;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

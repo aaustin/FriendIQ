@@ -5,22 +5,39 @@ import java.util.ArrayList;
 import java.util.Random;
 import com.friendiq.android.GameView.MatrixReady;
 import android.content.Context;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Transformation;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-public class SplitImageMatrix {
-	
+public class SplitImageMatrix {	
 	private static final double SECTION_MARGIN = 0.01;
 	private static final double IMAGE_WIDTH = 0.75;
 	private static final double TOP_MARGIN = 0.2;
 	
-	public static final int NUMBER_SQUARE = 5;
+	private static final double FLASH_BUTTON = 1.5;
+	private static final double FLASH_MARGIN = 0.02;
+	private static final double FLASH_HEIGHT = 0.4;
+
+	
+	public static final int NUMBER_SQUARE = 4;
 	private static final int MIX_PASSES = 3;
 	
 	public int sectionMargin;
 	public int imageWidth;
 	public int topMargin;
+	
+	GameView gameView;
+	ImageView portraitView;
+	TextView txtCoins;
 	
 	Contact contact;
 	
@@ -30,15 +47,28 @@ public class SplitImageMatrix {
 	
 	int sectionSideLength;
 	
+	Rect cmdFlashPicture;
 	ImageSection[][] imgMatrix;
 	
 	MatrixReady preparedCallback;
 	Bitmap basePicture;
 	
-	public SplitImageMatrix(Context context, int screenHeight, int screenWidth) {
+	Rect slidingRect;
+	int srcX;
+	int srcY;
+	int destX;
+	int destY;
+	boolean sliding;
+	
+	public SplitImageMatrix(Context context, int screenHeight, int screenWidth, ImageView portraitView, GameView gameView, TextView txtCoins) {
+		this.gameView = gameView;
 		this.context = context;
+		this.txtCoins = txtCoins;
+		this.portraitView = portraitView;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
+
+		sliding = false;
 		
 		this.sectionMargin = (int) (screenWidth*SECTION_MARGIN);
 		this.imageWidth = (int) (screenWidth*IMAGE_WIDTH);
@@ -57,10 +87,21 @@ public class SplitImageMatrix {
   		imgMatrix = new ImageSection[NUMBER_SQUARE][NUMBER_SQUARE];
   		
   		basePicture = Bitmap.createScaledBitmap(contact.bm, imageWidth, imageWidth, false);
-  		Log.i(DatabaseHelper.class.getName(),"just created new bmp with " + imageWidth + "x" + imageWidth);
+  		((Activity)context).runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				RelativeLayout.LayoutParams lp =  new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				lp.width = NUMBER_SQUARE*sectionSideLength + sectionMargin*(NUMBER_SQUARE-1);
+				lp.height = NUMBER_SQUARE*sectionSideLength + sectionMargin*(NUMBER_SQUARE-1);
+				lp.setMargins((screenWidth - imageWidth)/2, topMargin, 0, 0);
+				portraitView.setLayoutParams(lp);	
+				//portraitView.setVisibility(View.INVISIBLE);		
+			}  			
+  		});
+  		Log.i(SplitImageMatrix.class.getName(),"just created new bmp with " + imageWidth + "x" + imageWidth);
   		
   		if (contact.bm == null)
-  			Log.i(DatabaseHelper.class.getName(),"NULL BMP");
+  			Log.i(SplitImageMatrix.class.getName(),"NULL BMP");
   		// cut up the base image
   		int left = 0;
   		int top = 0;
@@ -71,7 +112,8 @@ public class SplitImageMatrix {
   				top = y*sectionSideLength;
   				ImageSection img = new ImageSection();
   	  			img.source = new Rect(left, top, left + sectionSideLength, top + sectionSideLength);
-  	  			Log.i(DatabaseHelper.class.getName(),"source section = " + img.source.toShortString());
+				//Log.i(getClass().getSimpleName(), "x, y (" + x + ", " + y + ")");
+  	  			//Log.i(SplitImageMatrix.class.getName(),"source section = " + img.source.toShortString());
   	  			tempSections.add(img);
   			}  			
   		}
@@ -101,11 +143,160 @@ public class SplitImageMatrix {
   				top = y*sectionSideLength + baseY + y*sectionMargin;
   				imgMatrix[x][y] = tempSections.remove(0);
   				imgMatrix[x][y].dest = new Rect(left, top, left + sectionSideLength, top + sectionSideLength);
-  				Log.i(DatabaseHelper.class.getName(),"Dests section = " + imgMatrix[x][y].dest.toShortString());
+				//Log.i(getClass().getSimpleName(), "x, y (" + x + ", " + y + ")");
+  				//Log.i(SplitImageMatrix.class.getName(),"Dests section = " + imgMatrix[x][y].dest.toShortString());
+  	  			//Log.i(SplitImageMatrix.class.getName(),"source section = " + imgMatrix[x][y].source.toShortString());
+
   			}
   		}
+  		left = (NUMBER_SQUARE-1)*sectionSideLength + baseX + (NUMBER_SQUARE-1)*sectionMargin;
+  		top = baseY - (int) (FLASH_MARGIN*screenHeight+FLASH_HEIGHT*sectionSideLength);
+  		cmdFlashPicture = new Rect(
+  				left,
+  				top,
+  				left + (int) (FLASH_BUTTON*sectionSideLength),
+  				top + (int) (FLASH_HEIGHT*sectionSideLength));
   		
   		preparedCallback.callback(1);
   	}
+  	
+  	public void press_section(int x, int y) {
+  		if (!sliding && !imgMatrix[x][y].isBlank) {
+  			srcX = -1;
+  			srcY = -1;
+  			destX = -1;
+  			destY = -1;
+  			
+  			Log.i(getClass().getSimpleName(), "pressed section (" + x + ", " + y + ")");
+  			
+  			for (int tempX = Math.max(0, x-1); tempX <= Math.min(NUMBER_SQUARE-1, x+1); tempX++) {
+  				if (imgMatrix[tempX][y].isBlank) {
+  					Log.i(getClass().getSimpleName(), "found a next door blank at (" + tempX + ", " + y + ")");
+  					srcX = x;
+  					srcY = y;
+  					destX = tempX;
+  					destY = y;
+  					slidingRect = new Rect(
+  							imgMatrix[x][y].dest.left, 
+  							imgMatrix[x][y].dest.top,
+  							imgMatrix[x][y].dest.right,
+  							imgMatrix[x][y].dest.bottom);
+  					break;
+  				}
+  			}
+  			if (destX < 0) {
+				for (int tempY = Math.max(0, y-1); tempY <= Math.min(NUMBER_SQUARE-1, y+1); tempY++) {
+					//Log.i(getClass().getSimpleName(), "scanning (" + tempX + ", " + tempY + ")");					
+					if (imgMatrix[x][tempY].isBlank) {
+						Log.i(getClass().getSimpleName(), "found a next door blank at (" + x + ", " + tempY + ")");
+		
+						srcX = x;
+						srcY = y;
+						destX = x;
+						destY = tempY;
+						slidingRect = new Rect(
+	  							imgMatrix[x][y].dest.left, 
+	  							imgMatrix[x][y].dest.top,
+	  							imgMatrix[x][y].dest.right,
+	  							imgMatrix[x][y].dest.bottom);
+						break;
+					}
+				}	  			
+  			}
+  			
+  			if (destX >= 0) {
+				Log.i(getClass().getSimpleName(), "starting animation!!");
+				imgMatrix[srcX][srcY].sliding = true;
+  				sliding = true;
+				((Activity)context).runOnUiThread(new Runnable() {
+					@Override
+					public void run() {	
+		  				Animation ani = new Animation() {
+		  					@Override
+		  					protected void applyTransformation(float interpolatedTime, Transformation t) {
+		  						int deltaX = imgMatrix[destX][destY].dest.left - imgMatrix[srcX][srcY].dest.left;
+		  						int deltaY = imgMatrix[destX][destY].dest.top - imgMatrix[srcX][srcY].dest.top;
+		  						//Log.i(getClass().getSimpleName(), "animation interp!!");
+		  						slidingRect.offsetTo(imgMatrix[srcX][srcY].dest.left + (int)(deltaX*interpolatedTime), imgMatrix[srcX][srcY].dest.top+(int)(deltaY*interpolatedTime));
+		  			  			gameView.drawingThread.redraw();
 
+		  					}
+		  					 @Override
+		  			        public boolean willChangeBounds() {
+		  			            return true;
+		  			        }
+		  				};
+		  				ani.setAnimationListener(new SlidingAnimationListener());
+		  				ani.setDuration(200);
+		  				gameView.startAnimation(ani);
+					}
+				});
+  				
+  			}
+  		}
+  	}
+
+  	public void flash_image() {
+  		((Activity)context).runOnUiThread(new Runnable() {
+			@Override
+			public void run() {			
+				portraitView.setVisibility(View.INVISIBLE);		
+				//Log.i(getClass().getSimpleName(), "starting fade in ani");
+		  		Animation viewFadeinAni = AnimationUtils.loadAnimation(context, R.anim.fadein);
+		  		viewFadeinAni.setAnimationListener(new FadeInViewAnimationListener());
+		  		portraitView.startAnimation(viewFadeinAni);
+		  		portraitView.setImageBitmap(basePicture);		  		
+			}
+  		});
+  	}
+  	
+  	private class SlidingAnimationListener implements AnimationListener {
+  		@Override
+		public void onAnimationEnd(Animation animation) {
+			Log.i(getClass().getSimpleName(), "finished animation!!");  		
+  			
+  			ImageSection temp = imgMatrix[srcX][srcY].copy();
+  			temp.dest = slidingRect;
+  			
+  			imgMatrix[destX][destY].dest = imgMatrix[srcX][srcY].dest;
+  			imgMatrix[srcX][srcY] = imgMatrix[destX][destY].copy();
+  			imgMatrix[destX][destY] = temp;
+  			
+  			imgMatrix[destX][destY].sliding = false;  
+  			sliding = false;
+		}
+		@Override
+		public void onAnimationRepeat(Animation animation) {}
+		@Override
+		public void onAnimationStart(Animation animation) {}	
+  	}
+  	
+  	private class FadeOutViewAnimationListener implements AnimationListener {
+		@Override
+		public void onAnimationEnd(Animation animation) {
+			Log.i(getClass().getSimpleName(), "finishing fade out ani");
+
+			portraitView.setVisibility(View.INVISIBLE);		
+		}
+		@Override
+		public void onAnimationRepeat(Animation animation) {}
+		@Override
+		public void onAnimationStart(Animation animation) {}		
+	}
+	private class FadeInViewAnimationListener implements AnimationListener {
+		@Override
+		public void onAnimationEnd(Animation animation) {
+			Log.i(getClass().getSimpleName(), "finishing fade in ani");
+			portraitView.setVisibility(View.VISIBLE);		
+			Animation fadeoutAni = AnimationUtils.loadAnimation(context, R.anim.fadeout);
+			fadeoutAni.setAnimationListener(new FadeOutViewAnimationListener());
+			portraitView.startAnimation(fadeoutAni);
+			Log.i(getClass().getSimpleName(), "starting fade out ani");
+
+		}
+		@Override
+		public void onAnimationRepeat(Animation animation) {}
+		@Override
+		public void onAnimationStart(Animation animation) {}		
+	}
 }

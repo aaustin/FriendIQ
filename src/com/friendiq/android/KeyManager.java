@@ -2,11 +2,10 @@ package com.friendiq.android;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import com.friendiq.android.GameView.KeyboardReady;
-
 import android.content.Context;
 import android.graphics.Rect;
+import android.widget.TextView;
 
 public class KeyManager {
 	static final int NUM_LETTERS_IN_ROW = 6;
@@ -26,9 +25,11 @@ public class KeyManager {
 	private int sideMargin;
 	private int buttonKeyMargin;
 	private int botKeyMargin;
-	private int guessKeyToBotRatio;
+	//private int guessKeyToBotRatio;
 	private int guessKeyMargin;
 	private int guessBottomMargin;
+	
+	TextView txtCoins;
 	
 	Context context;
 	private int screenWidth;
@@ -58,9 +59,9 @@ public class KeyManager {
 	
 	private String firstname;
 	
-	private int botKeySide;
-	private int guessKeySide;
-	
+	int botKeySide;
+	int guessKeySide;
+		
 	Rect cmdGiveLetter;
 	Rect cmdDeleteLetter;
 	
@@ -69,10 +70,15 @@ public class KeyManager {
 	
 	String[] guessLetters;
 	String[] availableLetters;
+	ArrayList<String> randomLetters;
+	
+	boolean[] guessPressed;
+	boolean[] availablePressed;
 	
 	KeyboardReady keysReady;
 	
-	public KeyManager(Context context, int screenHeight, int screenWidth) {
+	public KeyManager(Context context, int screenHeight, int screenWidth, TextView txtCoins) {
+		this.txtCoins = txtCoins;
 		this.context = context;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
@@ -80,21 +86,24 @@ public class KeyManager {
 		this.sideMargin = (int) (screenWidth*SIDE_MARGIN);
 		this.buttonKeyMargin = (int) (screenWidth*BUTTON_KEY_MARGIN);
 		this.botKeyMargin = (int) (screenWidth*BOT_KEY_MARGIN);
-		this.guessKeyToBotRatio = (int) (screenWidth*GUESS_BOT_KEY_RATIO);
+		//this.guessKeyToBotRatio = (int) (screenWidth*GUESS_BOT_KEY_RATIO);
 		this.guessKeyMargin = (int) (screenWidth*GUESS_KEY_MARGIN);
 		this.guessBottomMargin = (int) (screenHeight*GUESS_BOT_MARGIN);
 		
 		this.botKeySide = (screenWidth - 2 * this.sideMargin - this.buttonKeyMargin - (NUM_LETTERS_IN_ROW - 1) * this.botKeyMargin) / (NUM_LETTERS_IN_ROW + 1);
-		this.guessKeySide = this.botKeySide * this.guessKeyToBotRatio;
+		this.guessKeySide = (int) (this.botKeySide * GUESS_BOT_KEY_RATIO);//this.guessKeyToBotRatio;
 	}
 	
 	private void init_rects() {
 		// guess letter rects
 		int top = screenHeight - botMargin - 2 * botKeySide - botKeyMargin - guessBottomMargin - guessKeySide;
 		int left = screenWidth/2 - (firstname.length() * (guessKeySide + guessKeyMargin) - guessKeyMargin)/2;
+		//Log.i(getClass().getSimpleName(), "starting top =" + top + ", left = " + left);
+
 		for (int i = 0; i < firstname.length(); i++) {
 			guessNameLetters[i] = new Rect(left, top, left + guessKeySide, top + guessKeySide);
 			left = left + guessKeySide + guessKeyMargin;
+			//Log.i(getClass().getSimpleName(), "starting top =" + top + ", left = " + left);
 		}
 		
 		top = top + guessBottomMargin + guessKeySide;
@@ -120,6 +129,7 @@ public class KeyManager {
 	
 	private void init_letters() {
 		Random ran = new Random();
+		randomLetters = new ArrayList<String>();
 		ArrayList<String> firstAL = new ArrayList<String>();
 		ArrayList<String> secondAL;
 		for (int i = 0; i < firstname.length(); i++)
@@ -127,7 +137,9 @@ public class KeyManager {
 		
 		int count = NUM_LETTERS_IN_ROW*NUM_LETTER_ROWS - firstname.length();
 		while (count > 0) {
-			firstAL.add(allLetters[ran.nextInt(allLetters.length)]);
+			String ranLetter = allLetters[ran.nextInt(allLetters.length)];
+			randomLetters.add(ranLetter);
+			firstAL.add(ranLetter);
 			count = count - 1;
 		}
 		
@@ -145,11 +157,15 @@ public class KeyManager {
   		}
 
   		// assign the letters
-  		for (int i = 0; i < availableLetters.length; i++)
+  		for (int i = 0; i < availableLetters.length; i++) {
   			availableLetters[i] = firstAL.remove(0);
+  			availablePressed[i] = false;
+  		}
   		
-  		for (int i = 0; i < guessLetters.length; i++)
+  		for (int i = 0; i < guessLetters.length; i++) {
   			guessLetters[i] = "-1";
+  			guessPressed[i] = false;
+  		}
 
 	}
 	
@@ -158,14 +174,96 @@ public class KeyManager {
 		
 		guessNameLetters = new Rect[firstname.length()];
 		guessLetters = new String[firstname.length()];
+		guessPressed = new boolean[firstname.length()];
 		
 		sourceLetters = new Rect[NUM_LETTERS_IN_ROW*NUM_LETTER_ROWS];
 		availableLetters = new String[NUM_LETTERS_IN_ROW*NUM_LETTER_ROWS];
+		availablePressed = new boolean[NUM_LETTERS_IN_ROW*NUM_LETTER_ROWS];
 		
 		init_rects();		
 		init_letters();
 		  		
 		keysReady.callback(1);		
 	}
-
+	
+	private int find_first_blank_guess() {
+		int blank = -1;
+		for (int i = 0; i < guessLetters.length; i++) {
+			if (guessLetters[i].equals("-1")) {
+				blank = i;
+				break;
+			}
+		}		 
+		return blank;
+	}
+	
+	private int find_first_blank_avail() {
+		int blank = -1;
+		for (int i = 0; i < availableLetters.length; i++) {
+			if (availableLetters[i].equals("-1")) {
+				blank = i;
+				break;
+			}
+		}		 
+		return blank;
+	}
+	
+	public boolean press_available(int index) {
+		if (!availableLetters[index].equals("-1")) {
+			int blankIndex = find_first_blank_guess();
+			if (blankIndex >= 0) {
+				guessLetters[blankIndex] = availableLetters[index];
+				availableLetters[index] = "-1";
+			}
+			if (find_first_blank_guess() < 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void press_guess(int index) {
+		if (!guessLetters[index].equals("-1")) {
+			int blankIndex = find_first_blank_avail();
+			if (blankIndex >= 0) {
+				availableLetters[blankIndex] = guessLetters[index];
+				guessLetters[index] = "-1";
+			}
+		}
+	}
+	
+	public void delete_letter() {
+		if (!randomLetters.isEmpty()) {
+			String deletter = randomLetters.remove(0);
+			for (int i = 0; i < availableLetters.length; i++) {
+				if (availableLetters[i].equals(deletter)) {
+					availableLetters[i] = "-1";
+					break;
+				}
+			}
+		}
+	}
+	public boolean give_letter() {
+		boolean letterAwarded = false;
+		for (int i = 0; i < availableLetters.length; i++) {
+			if (firstname.contains(availableLetters[i])) {
+				for (int j = 0; j < guessLetters.length; j++) {
+					if (String.valueOf(firstname.charAt(j)).equals(availableLetters[i])) {
+						if (guessLetters[j].equals("-1")) {
+							guessLetters[j] = availableLetters[i];
+							availableLetters[i] = "-1";
+							letterAwarded = true;
+							break;
+						}
+					}
+				}
+			}
+			if (letterAwarded)
+				break;
+		}
+		if (find_first_blank_guess() < 0)
+			return true;
+		else
+			return false;
+	}
 }

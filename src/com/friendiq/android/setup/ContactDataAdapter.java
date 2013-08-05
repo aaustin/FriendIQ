@@ -1,6 +1,8 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import java.util.ArrayList;
+
+import com.friendiq.android.Contact;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -62,8 +64,10 @@ public class ContactDataAdapter {
 			 ContentValues args = new ContentValues();			 
 			
 			 if (cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE_ID)).equals("none")
-					 && contact.datasourceid != "none") 
+					 && contact.datasourceid != "none") {
 				 args.put(DatabaseHelper.COLUMN_SOURCE_ID, contact.datasourceid);
+				 //args.put(DatabaseHelper.COLUMN_ID, contact.index);
+			 }
 			 
 			 if (cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE)).equals("none")
 					 && contact.datasource != "none") 
@@ -74,6 +78,7 @@ public class ContactDataAdapter {
 			 
 		 } else { // contact does not exist
 			 ContentValues values = new ContentValues();
+			// values.put(DatabaseHelper.COLUMN_ID, contact.index);
 			 values.put(DatabaseHelper.COLUMN_FIRSTNAME, contact.firstname);
 			 values.put(DatabaseHelper.COLUMN_LASTNAME, contact.lastname);
 			 values.put(DatabaseHelper.COLUMN_SOURCE_ID, contact.datasourceid);
@@ -105,7 +110,7 @@ public class ContactDataAdapter {
 			 int sourceCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE);
 			 do {
 				 currContact = new Contact();
-				 currContact.index = cursor.getInt(idCol);				 
+				// currContact.index = cursor.getInt(idCol);				 
 				 currContact.firstname = cursor.getString(firstCol);
 				 currContact.lastname = cursor.getString(lastCol);				
 				 currContact.datasourceid = cursor.getString(sourceidCol);
@@ -126,7 +131,7 @@ public class ContactDataAdapter {
 		 Contact currContact = new Contact();
 		 
 		 Cursor currcursor = db.query(DatabaseHelper.TABLE_CONTACTS,
-			        contactColumns, DatabaseHelper.COLUMN_ID + "=" + index, null, null, null, null); 
+			        contactColumns, DatabaseHelper.COLUMN_SOURCE_ID + "=" + index, null, null, null, null); 
 		 if (currcursor.moveToFirst()) {
 			 currContact.index = index;
 			 currContact.firstname = currcursor.getString(currcursor.getColumnIndex(DatabaseHelper.COLUMN_FIRSTNAME));

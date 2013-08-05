@@ -1,4 +1,4 @@
-package com.friendiq.android;
+package com.friendiq.android.helpers;
 
 import android.app.ProgressDialog;
 import android.content.Context;
