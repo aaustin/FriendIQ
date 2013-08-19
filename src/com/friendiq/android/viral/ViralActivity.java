@@ -8,6 +8,7 @@ import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.friendiq.android.Contact;
 import com.friendiq.android.GameActivity;
+import com.friendiq.android.PrefHelper;
 import com.friendiq.android.R;
 
 import android.os.Bundle;
@@ -27,12 +28,15 @@ public class ViralActivity extends Activity {
 	CheckBox chkSelectAll;
 	FriendAdapter fAdapter;
 	
+	PrefHelper pHelper;
+	
 	Context context;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_viral);
+		pHelper = new PrefHelper(this);
 		this.context = this;
 		chkSelectAll = (CheckBox) findViewById(R.id.checked);
 		chkSelectAll.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -72,6 +76,7 @@ public class ViralActivity extends Activity {
 				                    } else {
 				                        final String requestId = values.getString("request");
 				                        if (requestId != null) {
+				                        	pHelper.set_invited_friend_status(true);
 				        					Intent i = new Intent(getApplicationContext(), GameActivity.class);
 				        					i.putExtra("userid", "-1");
 				        					startActivity(i);

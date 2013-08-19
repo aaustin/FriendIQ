@@ -33,8 +33,8 @@ public class StoreItemAdapter extends BaseAdapter {
 	static final double SKU_300_COST = 0.99;
 	static final double SKU_700_COST = 1.99;
 	static final double SKU_1500_COST = 2.99;
-	static final double SKU_4500_COST = 5.99;
-	static final double SKU_10000_COST = 9.99;
+	static final double SKU_4500_COST = 9.99;
+	static final double SKU_10000_COST = 19.99;
 	
 	public int selectedIndex;
 	
