@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_store_gradient"
+    tools:context=".StoreActivity" >
+
+    <RelativeLayout
+    	android:id="@+id/bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"        
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bg_bar_gradient" >
+        
+        <Button 
+            android:id="@+id/cmdExit"
+       		android:layout_width="80dp"
+            android:layout_height="25dp"               
+            android:layout_marginLeft="15dp"     
+        	android:layout_alignParentLeft="true"
+        	android:layout_centerVertical="true"
+        	android:background="@drawable/bg_add_coins"
+        	android:paddingLeft="15dp"
+        	android:paddingRight="15dp"
+        	android:gravity="center"
+        	android:text="exit"
+        	android:textSize="14sp"   />
+        
+        <TextView 
+            android:id="@+id/txtCoins"
+       		android:layout_width="wrap_content"
+            android:layout_height="20dp"               
+        	android:layout_centerHorizontal="true"
+        	android:layout_centerVertical="true"        	       	
+        	android:text="300 coins"
+        	android:textSize="16sp"
+        	android:textColor="#FFFFFF"/>          
+        
+        
+    </RelativeLayout>
+    
+    
+    <ListView 
+    	android:id="@+id/store_list"
+        android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_below="@+id/bar"
+	    android:layout_marginLeft="40dp"
+	    android:layout_marginRight="40dp"
+	    android:choiceMode="singleChoice"
+	    android:divider="#777777"
+	    android:dividerHeight="1dp"
+	    android:background="#00000000"/>
+
+</RelativeLayout>

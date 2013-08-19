@@ -1,12 +1,15 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import java.util.ArrayList;
+
+import com.friendiq.android.Contact;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class ContactDataAdapter {
 
@@ -46,9 +49,19 @@ public class ContactDataAdapter {
 		 db.endTransaction();
 	 }
 	 
+	 public void delete_all() {
+		 if (!db.isOpen())
+			 open_for_write();
+		 
+		 db.delete(DatabaseHelper.TABLE_CONTACTS, null, null);
+		 db.delete("sqlite_sequence", "name=\'" + DatabaseHelper.TABLE_CONTACTS + "\'", null);
+	 }
+	 
 	 public int add_new_contact(Contact contact) {
 		 if (!db.isOpen())
 			 open_for_write();
+		 
+		 int additional = 0;
 		 
 		 Cursor cursor = db.query(DatabaseHelper.TABLE_CONTACTS,
 			        contactColumns, 
@@ -57,23 +70,24 @@ public class ContactDataAdapter {
 			        null, null, null, null);
 		 int id = -1;
 		 if(cursor.moveToFirst()) { // contact exists
+			// Log.i(this.getClass().getName(),"Contact exists! updating it now");
 			 id = cursor.getInt(0);
 			 String filter = "_id=" + id;
-			 ContentValues args = new ContentValues();			 
-			
-			 if (cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE_ID)).equals("none")
-					 && contact.datasourceid != "none") 
-				 args.put(DatabaseHelper.COLUMN_SOURCE_ID, contact.datasourceid);
+			 ContentValues args = new ContentValues();			 			
 			 
-			 if (cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE)).equals("none")
-					 && contact.datasource != "none") 
-				 args.put(DatabaseHelper.COLUMN_SOURCE, contact.datasource);
+			 args.put(DatabaseHelper.COLUMN_SOURCE_ID, contact.datasourceid);			 
+			 args.put(DatabaseHelper.COLUMN_SOURCE, contact.datasource);
 			 
-			 if (args.size() > 0)
-				 db.update(DatabaseHelper.TABLE_CONTACTS, args, filter, null);
+			 if (args.size() > 0) {
+				 int updated = db.update(DatabaseHelper.TABLE_CONTACTS, args, filter, null);
+				 //Log.i(this.getClass().getName(),"updated the DB result = " + updated);
+			 }
 			 
 		 } else { // contact does not exist
+			// Log.i(this.getClass().getName(),"Contact does not exists! adding it");
+			 additional = 1;
 			 ContentValues values = new ContentValues();
+			// values.put(DatabaseHelper.COLUMN_ID, contact.index);
 			 values.put(DatabaseHelper.COLUMN_FIRSTNAME, contact.firstname);
 			 values.put(DatabaseHelper.COLUMN_LASTNAME, contact.lastname);
 			 values.put(DatabaseHelper.COLUMN_SOURCE_ID, contact.datasourceid);
@@ -83,7 +97,7 @@ public class ContactDataAdapter {
 		 
 		 cursor.close();
 		 
-		 return id;
+		 return additional;
 	 }
 	 
 		 
@@ -105,7 +119,7 @@ public class ContactDataAdapter {
 			 int sourceCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE);
 			 do {
 				 currContact = new Contact();
-				 currContact.index = cursor.getInt(idCol);				 
+				// currContact.index = cursor.getInt(idCol);				 
 				 currContact.firstname = cursor.getString(firstCol);
 				 currContact.lastname = cursor.getString(lastCol);				
 				 currContact.datasourceid = cursor.getString(sourceidCol);

@@ -1,8 +1,11 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import java.util.List;
 import com.facebook.model.GraphUser;
-import com.friendiq.android.FacebookContacts.ImportDoneFB;
+import com.friendiq.android.Contact;
+import com.friendiq.android.PrefHelper;
+import com.friendiq.android.setup.FacebookContacts.ImportDoneFB;
+import com.friendiq.android.setup.FacebookSignupActivity.PhoneContactImportDone;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -10,6 +13,7 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.util.Log;
 
 public class ParseContacts {
 	
@@ -47,7 +51,7 @@ public class ParseContacts {
 		}
 	}
 	
-	public void download_phone_contacts() {
+	public void download_phone_contacts(PhoneContactImportDone callback) {
 		cda.open_for_write();
 		cda.begin_transactions();
 		
@@ -73,6 +77,7 @@ public class ParseContacts {
     		int lastCol = data.getColumnIndex(StructuredName.FAMILY_NAME);
     		
 	   		while(data.moveToNext()) { 
+	   			//currContact.index = data.getLong(idCol);
 	   			currContact.datasourceid = String.valueOf(data.getInt(idCol));
 	   			currContact.firstname = data.getString(firstCol);
 	   			currContact.lastname = data.getString(lastCol);
@@ -89,8 +94,7 @@ public class ParseContacts {
 	   				goodData = false;
 	   			
 	   			if (goodData) { 	            	
-	   				cda.add_new_contact(currContact);
-	   				count = count + 1;
+	   				count = count + cda.add_new_contact(currContact);
 	   			}
 	   			
 	   			goodData = true;
@@ -104,10 +108,14 @@ public class ParseContacts {
 		cda.close();		
 	
 		pHelper.set_friend_count(count);
+		callback.callback(1);
 	}
 	
 	public void download_facebook_contacts(List<GraphUser> users) {
 		cda.open_for_write();
+		cda.begin_transactions();		
+		cda.delete_all();
+		cda.end_transactions();		
 		cda.begin_transactions();		
 
 		int count = 0;
@@ -119,9 +127,9 @@ public class ParseContacts {
 				if (curr != null) {
 					//Log.i(getClass().getName(),"FB: Assigned name: " + curr.firstname + " " + curr.lastname);
 					curr.datasourceid = users.get(i).getId();
-					
-					cda.add_new_contact(curr);
-					count = count + 1;
+					//curr.index = Long.valueOf(users.get(i).getId());
+
+					count = count + cda.add_new_contact(curr);
 				}
 			}
 		}

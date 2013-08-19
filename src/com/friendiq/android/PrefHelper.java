@@ -1,5 +1,7 @@
 package com.friendiq.android;
 
+import com.friendiq.android.setup.DatabaseHelper;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -17,7 +19,16 @@ public class PrefHelper {
     private static final String FACEBOOK_ENABLE = "facebook_enable";
     private static final String FACEBOOK_FAILED = "facebook_failed";
     private static final String FACEBOOK_CONTACTS_SERVICE = "facebook_contacts_service";
-	
+    
+    private static final String FRIEND_IQ = "friend_iq";
+    private static final String COIN_COUNT = "coin_count";
+    public static final int FLASH_COST = 50;
+    public static final int ADD_LETTER_COST = 40;
+    public static final int DEL_LETTER_COST = 20;
+    public static final int SUCCESS_AWARD = 50;
+    public static final int IMAGE_SUCCESS_AWARD = 100;
+    
+    	
 	private SharedPreferences appSharedPrefs;
 	private Editor prefsEditor;	
 	
@@ -77,7 +88,7 @@ public class PrefHelper {
  	
  	public void set_friend_count(int count) {
  		Log.i(DatabaseHelper.class.getName(),"setting friend count to : " + count);
- 		prefsEditor.putInt(FRIEND_COUNT, get_friend_count() + count);
+ 		prefsEditor.putInt(FRIEND_COUNT, count);
  		prefsEditor.commit();
  	}
  	
@@ -110,4 +121,28 @@ public class PrefHelper {
 		prefsEditor.commit();
 	}	
 			
+	
+	// GAME MECHANICS	
+	public int get_coin_count() {
+		return appSharedPrefs.getInt(COIN_COUNT, 300);
+	}
+	
+	public void add_to_coin_count(int addition) {
+		prefsEditor.putInt(COIN_COUNT, get_coin_count() + addition);
+		prefsEditor.commit();
+	}
+	
+	public void set_coin_count(int count) {
+		prefsEditor.putInt(COIN_COUNT, count);
+		prefsEditor.commit();
+	}
+	
+	public int get_friend_iq() {
+		return appSharedPrefs.getInt(FRIEND_IQ, 0);
+	}
+	
+	public void add_to_friend_iq(int addition) {
+		prefsEditor.putInt(FRIEND_IQ, get_friend_iq() + addition);
+		prefsEditor.commit();
+	}	
 }

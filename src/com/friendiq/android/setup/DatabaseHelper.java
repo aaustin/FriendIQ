@@ -1,4 +1,4 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,7 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	  public static final String COLUMN_SOURCE_ID = "datasourceid";
 	  public static final String COLUMN_SOURCE = "datasource";
 		  
-	  private static final String DATABASE_NAME = "catchup.db";
+	  private static final String DATABASE_NAME = "friendiq.db";
 	  private static final int DATABASE_VERSION = 1;
 
 	  // Database creation sql statement

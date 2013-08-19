@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FinishActivity"
+    android:background="@drawable/bg_gradient" >
+
+    <ImageView
+        android:id="@+id/imgCorrect"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="75dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ico_correct" />
+
+    <Button
+        android:id="@+id/cmdNext"
+        android:layout_width="150dp"
+        android:layout_height="35dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="75dp"
+        android:background="@drawable/bg_buy_coins"
+        android:textColor="#FFFFFF"
+        android:text="Next" />
+
+    <TextView
+        android:id="@+id/txtMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/imgCorrect"
+        android:text="Great Job!"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        android:textColor="@color/correct_text" />
+
+    <CheckBox
+        android:id="@+id/chkAskForHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cmdNext"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:checked="true"
+        android:text="Ask for help from Facebook?"
+        android:textColor="#AAAAAA" />
+    
+</RelativeLayout>

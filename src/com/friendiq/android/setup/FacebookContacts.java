@@ -1,4 +1,4 @@
-package com.friendiq.android;
+package com.friendiq.android.setup;
 
 import java.util.List;
 import android.app.Activity;
@@ -11,6 +11,8 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
+import com.friendiq.android.CallBack;
+import com.friendiq.android.PrefHelper;
 
 public class FacebookContacts {
 

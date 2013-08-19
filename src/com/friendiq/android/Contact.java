@@ -10,12 +10,14 @@ import java.net.URLConnection;
 import com.friendiq.android.GameView.ImageReady;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Photo;
+import android.net.Uri;
+import android.provider.ContactsContract.Contacts;
+import android.util.Log;
 
 public class Contact {
 	public int index;	
@@ -59,8 +61,8 @@ public class Contact {
 		if (datasource.equals("fb")) {
 			String url = "http://graph.facebook.com/";
             url = url + datasourceid;
-            url = url + "/picture";
-            
+            url = url + "/picture?width=500&height=500";
+            Log.i(getClass().getSimpleName(), "FB PHOTO");
             try {
                 URL aURL = new URL(url);
                 URLConnection conn = aURL.openConnection();
@@ -80,34 +82,52 @@ public class Contact {
             	status = 0;
 		} else {
 			// local image
-			String[] PROJECTION = new String[] {
+			/*String[] PROJECTION = new String[] {
 	    			"data15"
-	    	};
-			
-			byte[] portrait = null;
-			ContentResolver contentResolver = context.getContentResolver();
-			Cursor data = contentResolver.query(ContactsContract.Data.CONTENT_URI, PROJECTION, 
-	    			ContactsContract.Data.CONTACT_ID + "=? AND (" 
-	    					+ ContactsContract.Data.MIMETYPE + "=?)", 
-	    			new String[]{datasourceid, 
-						Photo.CONTENT_ITEM_TYPE}, 
-	    			null);
-			
-			if (data.getCount() > 0) {
-		   		while(data.moveToNext()) {
-		   			portrait = data.getBlob(data.getColumnIndex(Photo.PHOTO));
-		   			if (portrait != null)
-		   				break;
-		   		}
-			}		
-			
-			data.close();
-			
-			
-			if (portrait != null) 
-				bm = BitmapFactory.decodeByteArray(portrait, 0, portrait.length);
-			else
+	    	};*/
+			if (!datasourceid.equals("none")) {
+				Log.i(getClass().getSimpleName(), "PHONE PHOTO");
+				//byte[] portrait = null;
+				ContentResolver contentResolver = context.getContentResolver();
+				/*Cursor data = contentResolver.query(ContactsContract.Data.CONTENT_URI, PROJECTION, 
+		    			ContactsContract.Data.CONTACT_ID + "=? AND (" 
+		    					+ ContactsContract.Data.MIMETYPE + "=?)", 
+		    			new String[]{datasourceid, 
+							Photo.CONTENT_ITEM_TYPE}, 
+		    			null);*/
+				Uri contactUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, Long.parseLong(datasourceid));
+				Uri displayPhotoUri = Uri.withAppendedPath(contactUri, Contacts.Photo.DISPLAY_PHOTO);
+				try {
+					AssetFileDescriptor fd = contentResolver.openAssetFileDescriptor(displayPhotoUri, "r");
+					InputStream is = fd.createInputStream();
+					BufferedInputStream bis = new BufferedInputStream(is);
+		   			bm = BitmapFactory.decodeStream(new FlushedInputStream(is));
+				} catch (IOException e) {
+					status = 0;
+				}
+	   			
+	   			//portrait = IOUtils.toByteArray(fd.createInputStream());
+				/*
+				if (data.getCount() > 0) {
+			   		while(data.moveToNext()) {
+			   			
+			   			//portrait = data.getBlob(data.getColumnIndex(Photo.PHOTO));
+			   			if (portrait != null)
+			   				break;
+			   		}
+				}		
+				
+				data.close();*/
+				
+				
+				if (bm == null)
+					status = 0;
+					//bm = BitmapFactory.decodeByteArray(portrait, 0, portrait.length);
+				//else
+			} else {
 				status = 0;
+			}
+				
 		}
 		
 		callback.callback(status);
