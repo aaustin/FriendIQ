@@ -68,7 +68,7 @@ public class DrawingThread extends Thread {
 		bg = context.getResources().getDrawable(R.drawable.bg_gradient);
 		bg.setBounds(0, 0, imageMatrix.screenWidth, imageMatrix.screenHeight);
 		
-		redrawTimer = new Timer();
+		//redrawTimer = new Timer();
 		
 		this.run = false;
 		this.reDraw = true;
@@ -162,6 +162,7 @@ public class DrawingThread extends Thread {
 	// start the drawing
 	public void start_drawing() {
 		run = true;
+		redrawTimer = new Timer();
 		redrawTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -174,7 +175,7 @@ public class DrawingThread extends Thread {
 		run = false;
 		redrawTimer.cancel();
 	}
-
+	
 	
 	@Override
 	public void run() {

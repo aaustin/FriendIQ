@@ -22,6 +22,7 @@ public class GameActivity extends Activity {
 	GameView gameView;
 	private int userid;		
 	SurfaceViewReady gameReady;
+	PrefHelper pHelper;
 	
 	TextView txtFriendIQ;
 	TextView txtCoins;
@@ -35,16 +36,14 @@ public class GameActivity extends Activity {
 		setContentView(R.layout.activity_game);
 		this.context = this;
 		
-		PrefHelper pHelper = new PrefHelper(this);
+		pHelper = new PrefHelper(this);
 		
 		portraitView = (ImageView) findViewById(R.id.imgPortrait);
 		txtFriendIQ = (TextView) findViewById(R.id.txtIQValue);
 		txtCoins = (TextView) findViewById(R.id.txtCoins);
-		txtCoins.setText(pHelper.get_coin_count() + " coins");
-		txtFriendIQ.setText(pHelper.get_friend_iq() + " ");		
 		
-		progBar = new NetworkProgressBar(this);
-		progBar.show("initializing..");
+		txtFriendIQ.setText(pHelper.get_friend_iq() + " ");		
+		cmdBuyCoins = (Button) findViewById(R.id.cmdStore);		
 		
 		gameView = (GameView) findViewById(R.id.gameView);
 		
@@ -53,12 +52,16 @@ public class GameActivity extends Activity {
 		Log.i(getClass().getSimpleName(), "user id " + this.userid);
 
         gameReady = new SurfaceViewReady();        
-        gameView.initialize_game(this.userid, gameReady, portraitView, txtCoins);
+    	progBar = new NetworkProgressBar(this);
+		progBar.show("initializing..");		
+		gameView.initialize_game(this.userid, gameReady, portraitView, txtCoins);
         
         cmdBuyCoins.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(context, StoreActivity.class);
+				intent.putExtra("userid", String.valueOf(userid));
+				Log.i(getClass().getSimpleName(), "going to store with index = " + userid);
 				context.startActivity(intent);
 			}        	
         });
@@ -67,6 +70,7 @@ public class GameActivity extends Activity {
 	// interface implementation image matrix ready callback
   	public class SurfaceViewReady implements CallBack {
   		public void callback(int threadID) {
+  			userid = threadID;
   			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -80,6 +84,13 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		txtCoins.setText(pHelper.get_coin_count() + " coins");
+		Log.i(getClass().getSimpleName(), "restarting with user id " + this.userid);
+
+		if (gameView.already_prepared_but_not_drawing()) {
+			gameView.resume_game();
+		}
+		
 		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
 	}
 	

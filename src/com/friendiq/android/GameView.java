@@ -77,6 +77,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			while (loop) {
 				Random ran = new Random();
 				contactIndex = ran.nextInt(pHelper.get_friend_count());
+				Log.i(getClass().getSimpleName(), "trying index = " + contactIndex);
 				contact = cda.get_contact(contactIndex);
 				if (contact.firstname.length() <= KeyManager.NUM_LETTERS_IN_ROW)
 					loop = false;
@@ -86,7 +87,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		cda.close();
 		
-		Log.i(getClass().getSimpleName(), "about to download pic for name = " + contact.firstname);
+		Log.i(getClass().getSimpleName(), "about to download pic for name = " + contact.firstname + " and index = " + contact.index);
 		imgReady = new ImageReady();
 		new Thread(new Runnable() {
 			@Override
@@ -140,13 +141,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				while (loop) {
 					Random ran = new Random();
 					contactIndex = ran.nextInt(pHelper.get_friend_count());
+					Log.i(getClass().getSimpleName(), "trying index = " + contactIndex);
 					contact = cda.get_contact(contactIndex);
 					if (contact.firstname.length() <= KeyManager.NUM_LETTER_ROWS*KeyManager.NUM_LETTERS_IN_ROW-3 && !contact.firstname.contains(" "))
 						loop = false;
 				}
   				cda.close();
   				imgReady = new ImageReady();
-  				Log.i(getClass().getSimpleName(), "failed, next = " + contact.firstname);
+  				Log.i(getClass().getSimpleName(), "failed, next = " + contact.firstname + " at index = " + contact.index);
   				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -162,21 +164,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   		}
   	}
   	
+  	public boolean already_prepared_but_not_drawing() {
+  		return prepared && !drawingThread.run;
+  	}
+  	
   	// all items are prepared - start drawing
   	private void game_is_ready() {
   		if (prepared) {  			
-  			gameReady.callback(1);
+  			gameReady.callback(contactIndex);
   			drawingThread.start_drawing();
 			drawingThread.start();
   		} else
   			prepared = true;
   	}
   	
+  	public void resume_game() {
+		drawingThread = new DrawingThread(context, getHolder(), splitImage, keyManager);
+  		drawingThread.start_drawing();
+  		drawingThread.start();
+  	}
+  	
   	private void game_is_word_finished() {
   		// handle finished game stuff
 		Log.i(getClass().getSimpleName(), "FINISHED GAME");
 		Intent intent = new Intent(context, FinishActivity.class);
-		intent.putExtra("userid", contact.datasourceid);
+		intent.putExtra("userid", contact.index);
 		intent.putExtra("firstname", contact.firstname);
 		String name = "";
 		for (int i = 0; i < keyManager.guessLetters.length; i++)

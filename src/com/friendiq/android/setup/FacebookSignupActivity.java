@@ -5,12 +5,10 @@ import com.facebook.Session;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.flurry.android.FlurryAgent;
+import com.friendiq.android.CallBack;
 import com.friendiq.android.GameActivity;
 import com.friendiq.android.PrefHelper;
 import com.friendiq.android.R;
-import com.friendiq.android.R.id;
-import com.friendiq.android.R.layout;
-import com.friendiq.android.R.string;
 import com.friendiq.android.helpers.NetworkProgressBar;
 
 import android.os.Bundle;
@@ -34,7 +32,7 @@ public class FacebookSignupActivity extends Activity {
 	PrefHelper pHelper;
 	FacebookContacts fbContacts;
 	ParseContacts parser;
-	
+	PhoneContactImportDone phoneDone;
 	TextView cmdPhoneContacts;
 	Button cmdFacebookLogin;
 	
@@ -44,18 +42,20 @@ public class FacebookSignupActivity extends Activity {
 		setContentView(R.layout.activity_facebook_signup);
 		pHelper = new PrefHelper(this);
 		context = this;
-				
+		progBar = new NetworkProgressBar(this);						
+
+		phoneDone = new PhoneContactImportDone();
 		parser = new ParseContacts(context, null);		
-		if (!pHelper.get_phone_download_status()) {
-			if (!pHelper.get_phone_download_status()) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						parser.download_phone_contacts();
-						pHelper.set_phone_download_status(true);
-					}				
-				}).start();
-			}
+		if (!pHelper.get_phone_download_status()) {			
+			progBar.show("initializing..");
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					parser.download_phone_contacts(phoneDone);
+					pHelper.set_phone_download_status(true);
+				}				
+			}).start();			
 		}
 		
 		cmdPhoneContacts = (TextView) findViewById(R.id.txtContacts);
@@ -66,7 +66,6 @@ public class FacebookSignupActivity extends Activity {
 		});
 		
 		fbContacts = new FacebookContacts(this, savedInstanceState);	
-		progBar = new NetworkProgressBar(this);						
 			
 		
 		cmdFacebookLogin = (Button) findViewById(R.id.cmdFBlogin);		
@@ -119,7 +118,12 @@ public class FacebookSignupActivity extends Activity {
   		}, 0, UPDATE_INTERVAL);
 	}	
 	
-	
+	public class PhoneContactImportDone implements CallBack {
+		@Override
+		public void callback(int threadID) {
+			progBar.hide();
+		}		
+	}
 		
 	@Override
 	protected void onStart() {

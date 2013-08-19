@@ -88,7 +88,7 @@ public class PrefHelper {
  	
  	public void set_friend_count(int count) {
  		Log.i(DatabaseHelper.class.getName(),"setting friend count to : " + count);
- 		prefsEditor.putInt(FRIEND_COUNT, get_friend_count() + count);
+ 		prefsEditor.putInt(FRIEND_COUNT, count);
  		prefsEditor.commit();
  	}
  	

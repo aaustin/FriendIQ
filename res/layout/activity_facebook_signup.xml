@@ -11,12 +11,15 @@
 
     <Button
         android:id="@+id/cmdFBlogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:gravity="center"
         android:text="Login with Facebook"
-        android:textColor="#c7cdd0" />
+        android:textSize="20sp"
+        android:textColor="#00284b"
+        android:background="@drawable/bg_buy_coins" />
 
     <TextView
         android:id="@+id/txtContacts"
