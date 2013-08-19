@@ -15,6 +15,7 @@ public class PrefHelper {
 	private static final String FIRST_BOOTUP = "first_bootup";
 	private static final String FRIEND_COUNT = "friend_count";
 	private static final String DOWNLOADED_PHONE = "phone_download";
+	private static final String INVITED_FRIENDS = "invited_friends";
 	private static final String GAME_IN_PROGRESS = "game_in_progress";
     private static final String FACEBOOK_ENABLE = "facebook_enable";
     private static final String FACEBOOK_FAILED = "facebook_failed";
@@ -60,6 +61,16 @@ public class PrefHelper {
  		prefsEditor.putBoolean(FIRST_BOOTUP, check);
  		prefsEditor.commit();
  	}
+ 	
+ // FIRST BOOT UP
+  	public boolean get_invited_friend_status() {
+  		return appSharedPrefs.getBoolean(INVITED_FRIENDS, false);
+  	}
+  		
+  	public void set_invited_friend_status(boolean check) {
+  		prefsEditor.putBoolean(INVITED_FRIENDS, check);
+  		prefsEditor.commit();
+  	}
  	
  // FIRST BOOT UP
   	public boolean get_phone_download_status() {

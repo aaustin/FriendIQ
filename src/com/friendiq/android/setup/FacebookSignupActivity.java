@@ -11,6 +11,7 @@ import com.friendiq.android.PrefHelper;
 import com.friendiq.android.R;
 import com.friendiq.android.helpers.KindredAlertDialog;
 import com.friendiq.android.helpers.NetworkProgressBar;
+import com.friendiq.android.viral.ViralActivity;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -82,8 +83,12 @@ public class FacebookSignupActivity extends Activity {
 		});
 		
 		if (!pHelper.get_first_bootup_status()) {			
-			if (pHelper.get_facebook_enable())
-				start_game();
+			if (pHelper.get_facebook_enable()) {
+				if (pHelper.get_invited_friend_status())
+					start_game();
+				else 
+					start_viral();
+			}
 		}
 		
 		if (!pHelper.check_enable_online()) {
@@ -99,7 +104,10 @@ public class FacebookSignupActivity extends Activity {
 		}
 	}
 	
-	
+	private void start_viral() {
+		Intent i = new Intent(getApplicationContext(), ViralActivity.class);
+		startActivity(i);
+	}
 
 	private void start_game() {
 		Intent i = new Intent(getApplicationContext(), GameActivity.class);
@@ -117,7 +125,7 @@ public class FacebookSignupActivity extends Activity {
              			if (!pHelper.get_facebook_contact_service_status()) {	
              				progBar.show("finished!");
              				Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");
-             				start_game();
+             				start_viral();
              				pHelper.set_first_bootup_status(false);
              				progBar.hide();
              				fbtimer.cancel();
