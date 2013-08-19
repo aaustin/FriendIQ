@@ -50,7 +50,7 @@
             android:label="@string/title_activity_finish"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Black.NoTitleBar" >
-        </activity>
+        </activity>      
         <activity
             android:name="com.friendiq.android.store.StoreActivity"
             android:label="@string/title_activity_store"
@@ -59,7 +59,9 @@
         </activity>
         <activity
             android:name="com.friendiq.android.viral.ViralActivity"
-            android:label="@string/title_activity_viral" >
+            android:label="@string/title_activity_viral"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Black.NoTitleBar"  >
         </activity>
     </application>
 
