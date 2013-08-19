@@ -1,14 +1,18 @@
 package com.friendiq.android;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -31,9 +35,13 @@ public class DrawingThread extends Thread {
 	private StaticLayout txtLayout;
 	
 	Drawable bg;
+	Drawable dAddLetter;
+	Drawable dDelLetter;
+	Drawable dFlashPic;
 
 	boolean run;
 	boolean reDraw;
+	boolean save;
 	
 	public DrawingThread(Context context, SurfaceHolder holder, SplitImageMatrix imageMatrix, KeyManager keyManager) {
 		this.context = context;
@@ -68,8 +76,12 @@ public class DrawingThread extends Thread {
 		bg = context.getResources().getDrawable(R.drawable.bg_gradient);
 		bg.setBounds(0, 0, imageMatrix.screenWidth, imageMatrix.screenHeight);
 		
+		dAddLetter = context.getResources().getDrawable(R.drawable.ic_add);
+		dDelLetter = context.getResources().getDrawable(R.drawable.ic_trash);
+		dFlashPic = context.getResources().getDrawable(R.drawable.ico_flash);
 		//redrawTimer = new Timer();
 		
+		this.save = false;
 		this.run = false;
 		this.reDraw = true;
 	}
@@ -142,17 +154,59 @@ public class DrawingThread extends Thread {
 			draw_letter(canvas, i, false);
 		}
 		
+		int scaledSide = (int)(imageMatrix.cmdFlashPicture.height()*0.7);
+		int offsetX = (int)((imageMatrix.cmdFlashPicture.height()*0.3)/2);
+		int offsetY = offsetX;
+		
 		canvas.drawRoundRect(new RectF(imageMatrix.cmdFlashPicture), 10, 10, flashPaint);
+		dFlashPic.setBounds(
+				imageMatrix.cmdFlashPicture.left+3*offsetX, 
+				imageMatrix.cmdFlashPicture.top+offsetY, 
+				imageMatrix.cmdFlashPicture.left + offsetX + scaledSide, 
+				imageMatrix.cmdFlashPicture.top + offsetY + scaledSide);
+		dFlashPic.draw(canvas);
+		
+		canvas.save();
+		textPaint.setTextSize(scaledSide);
+		txtLayout = new StaticLayout(
+				"flash", 
+				textPaint, 
+				imageMatrix.cmdFlashPicture.width(), 
+				Layout.Alignment.ALIGN_CENTER, 
+				1.0f, 
+				0, 
+				false);
+		canvas.translate(imageMatrix.cmdFlashPicture.left+2*offsetX, imageMatrix.cmdFlashPicture.top+offsetY);
+		txtLayout.draw(canvas);
+		canvas.restore();
+				
+		
+		scaledSide = (int)(keyManager.cmdGiveLetter.height()*0.7);
+		offsetX = (int)((keyManager.cmdGiveLetter.height()*0.3)/2);
+		offsetY = offsetX;	
+
 		canvas.drawRoundRect(new RectF(keyManager.cmdGiveLetter), 10, 10, addLetterPaint);
+		dAddLetter.setBounds(keyManager.cmdGiveLetter.left + offsetX, 
+				keyManager.cmdGiveLetter.top + offsetY, 
+				keyManager.cmdGiveLetter.left + offsetX + scaledSide, 
+				keyManager.cmdGiveLetter.top + offsetY + scaledSide);
+		dAddLetter.draw(canvas);
 		canvas.drawRoundRect(new RectF(keyManager.cmdDeleteLetter), 10, 10, removeLetterPaint);
+		dDelLetter.setBounds(keyManager.cmdDeleteLetter.left + offsetX, 
+				keyManager.cmdDeleteLetter.top + offsetY, 
+				keyManager.cmdDeleteLetter.left + offsetX + scaledSide, 
+				keyManager.cmdDeleteLetter.top + offsetY + scaledSide);
+		dDelLetter.draw(canvas);
+		
 	}
 	
 	private void draw(Canvas canvas) {		
-		bg.draw(canvas);
-		//canvas.draw(Color.BLACK);
-		draw_pictures(canvas);
-		draw_letters(canvas);
-		
+		if (canvas != null) {
+			bg.draw(canvas);
+			//canvas.draw(Color.BLACK);
+			draw_pictures(canvas);
+			draw_letters(canvas);
+		}			
 	}
 	
 	public void redraw() {
@@ -176,6 +230,34 @@ public class DrawingThread extends Thread {
 		redrawTimer.cancel();
 	}
 	
+	public void save_current_grid_to_file() {
+		int side = SplitImageMatrix.NUMBER_SQUARE*imageMatrix.sectionSideLength + (SplitImageMatrix.NUMBER_SQUARE-1)*imageMatrix.sectionMargin;
+		Bitmap bm = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(bm);
+  		int baseX = (imageMatrix.screenWidth - imageMatrix.imageWidth)/2;
+  		int baseY = imageMatrix.topMargin;
+		for (int x = 0; x < SplitImageMatrix.NUMBER_SQUARE; x++) {
+			for (int y = 0; y < SplitImageMatrix.NUMBER_SQUARE; y++) {			
+				if (!imageMatrix.imgMatrix[x][y].isBlank) {		
+					Rect adjustedRect = new Rect(
+							imageMatrix.imgMatrix[x][y].dest.left-baseX,
+							imageMatrix.imgMatrix[x][y].dest.top-baseY,
+							imageMatrix.imgMatrix[x][y].dest.right-baseX,
+							imageMatrix.imgMatrix[x][y].dest.bottom-baseY);
+					canvas.drawBitmap(imageMatrix.basePicture, imageMatrix.imgMatrix[x][y].source, adjustedRect, null);
+				}					
+			}
+		}
+		File selectedPath = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+		File fo = new File(selectedPath, imageMatrix.contact.datasourceid + ".jpg");
+		try {
+			FileOutputStream fOut = new FileOutputStream(fo);
+			bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+			fOut.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+	}	
 	
 	@Override
 	public void run() {

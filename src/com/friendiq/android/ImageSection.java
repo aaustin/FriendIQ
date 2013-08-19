@@ -4,6 +4,7 @@ import android.graphics.Rect;
 
 public class ImageSection {
 
+	int index;
 	boolean sliding;
 	boolean isBlank;
 	public Rect source;
@@ -16,6 +17,7 @@ public class ImageSection {
 	
 	public ImageSection copy() {
 		ImageSection newGuy = new ImageSection();
+		newGuy.index = this.index;
 		newGuy.sliding = this.sliding;
 		newGuy.isBlank = this.isBlank;
 		newGuy.source = new Rect(

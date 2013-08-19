@@ -1,5 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient"
@@ -7,16 +6,27 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".FacebookSignupActivity" >
+    tools:context=".FacebookSignupActivity" xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="200dp"
+        android:layout_height="197dp"
+        android:layout_marginTop="40dp"
+		android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/logo"
+        android:scaleType="fitCenter" />
+    
     <Button
         android:id="@+id/cmdFBlogin"
         android:layout_width="250dp"
         android:layout_height="40dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/imageView1"
+        android:layout_marginTop="30dp"
         android:gravity="center"
-        android:text="Login with Facebook"
+        android:text="        Login with Facebook"
         android:textSize="20sp"
         android:textColor="#00284b"
         android:background="@drawable/bg_buy_coins" />
@@ -26,9 +36,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cmdFBlogin"
-        android:layout_centerHorizontal="true"
+        android:layout_alignRight="@+id/cmdFBlogin"
         android:layout_marginTop="20dp"
         android:text="Or just use phone contacts"
+        android:textSize="12sp"
         android:textColor="#c7cdd0" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/cmdFBlogin"
+        android:layout_alignTop="@+id/cmdFBlogin"
+        android:layout_alignBottom="@+id/cmdFBlogin"
+        android:layout_marginLeft="-5dp"
+        android:src="@drawable/fb_icon"        
+        android:scaleType="fitCenter"  />
 
 </RelativeLayout>

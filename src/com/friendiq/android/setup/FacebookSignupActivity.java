@@ -9,6 +9,7 @@ import com.friendiq.android.CallBack;
 import com.friendiq.android.GameActivity;
 import com.friendiq.android.PrefHelper;
 import com.friendiq.android.R;
+import com.friendiq.android.helpers.KindredAlertDialog;
 import com.friendiq.android.helpers.NetworkProgressBar;
 
 import android.os.Bundle;
@@ -19,7 +20,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 
 public class FacebookSignupActivity extends Activity {
 	private static final long UPDATE_INTERVAL = 200;
@@ -81,6 +84,18 @@ public class FacebookSignupActivity extends Activity {
 		if (!pHelper.get_first_bootup_status()) {			
 			if (pHelper.get_facebook_enable())
 				start_game();
+		}
+		
+		if (!pHelper.check_enable_online()) {
+			KindredAlertDialog kad = new KindredAlertDialog(context, "Friend IQ requires a stable internet connection for use.\n\nPlease wait until you have better service or connect to wifi.\n\nSorry!", false);			
+			kad.setOnDismissListener(new OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					Log.i(getClass().getSimpleName(), "DISMISSED");
+					finish();
+				}								
+			});
+			kad.show();
 		}
 	}
 	

@@ -18,5 +18,7 @@
     </style>
     <color name="wrong_red">#FFda1303</color>
     <color name="correct_text">#FF7ad323</color>
+    <color name="dialog_grey">#FFfffbfb</color>
+    <color name="dialog_grey_pressed">#FFaaaaaa</color>
     
 </resources>

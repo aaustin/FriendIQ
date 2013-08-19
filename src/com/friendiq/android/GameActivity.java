@@ -1,6 +1,7 @@
 package com.friendiq.android;
 
 import com.flurry.android.FlurryAgent;
+import com.friendiq.android.helpers.KindredAlertDialog;
 import com.friendiq.android.helpers.NetworkProgressBar;
 import com.friendiq.android.store.StoreActivity;
 
@@ -13,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 
 public class GameActivity extends Activity {
 	
@@ -91,8 +94,23 @@ public class GameActivity extends Activity {
 			gameView.resume_game();
 		}
 		
+		if (!pHelper.check_enable_online()) {
+			KindredAlertDialog kad = new KindredAlertDialog(context, "Friend IQ requires a stable internet connection for use.\n\nPlease wait until you have better service or connect to wifi.\n\nSorry!", false);			
+			kad.setOnDismissListener(new OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					Log.i(getClass().getSimpleName(), "DISMISSED");
+					finish();
+				}								
+			});
+			kad.show();
+		}
+		
 		FlurryAgent.onStartSession(this, getString(R.string.flurry_id));
 	}
+	
+	@Override
+	public void onBackPressed() { }
 	
 	@Override
 	protected void onStop() {

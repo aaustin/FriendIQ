@@ -6,10 +6,13 @@ import java.util.TimerTask;
 
 import com.friendiq.android.GameActivity.SurfaceViewReady;
 import com.friendiq.android.finish.FinishActivity;
+import com.friendiq.android.helpers.KindredAlertDialog;
 import com.friendiq.android.setup.ContactDataAdapter;
 import com.friendiq.android.setup.DatabaseHelper;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -106,7 +109,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					Log.i(DatabaseHelper.class.getName(),"timer hit, creating rects and launching thread");
 					
 					splitImage = new SplitImageMatrix(context, height, width, portraitView, gameView, txtCoins);	 
-			        keyManager = new KeyManager(context, height, width, txtCoins);  	
+			        keyManager = new KeyManager(context, height, width, txtCoins, gameView);  	
 			        
 					drawingThread = new DrawingThread(context, getHolder(), splitImage, keyManager);
 
@@ -179,14 +182,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   	}
   	
   	public void resume_game() {
+  		  		
 		drawingThread = new DrawingThread(context, getHolder(), splitImage, keyManager);
   		drawingThread.start_drawing();
   		drawingThread.start();
   	}
   	
-  	private void game_is_word_finished() {
+  	public void game_is_word_finished() {
   		// handle finished game stuff
 		Log.i(getClass().getSimpleName(), "FINISHED GAME");
+		
+		drawingThread.save_current_grid_to_file();
+		
 		Intent intent = new Intent(context, FinishActivity.class);
 		intent.putExtra("userid", contact.index);
 		intent.putExtra("firstname", contact.firstname);
@@ -194,20 +201,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		for (int i = 0; i < keyManager.guessLetters.length; i++)
 			name = name + keyManager.guessLetters[i];
 		intent.putExtra("guessname", name);
+		intent.putExtra("filename", contact.datasourceid+".jpg");
+
 		intent.putExtra("image", false);
 		context.startActivity(intent);
   	}
-  	
-  	private void game_is_pic_finished() {
-  		Intent intent = new Intent(context, FinishActivity.class);
-		intent.putExtra("userid", contact.datasourceid);
-		intent.putExtra("firstname", contact.firstname);
-		String name = "";
-		for (int i = 0; i < keyManager.guessLetters.length; i++)
-			name = name + keyManager.guessLetters[i];
-		intent.putExtra("guessname", name);
-		intent.putExtra("image", true);
-		context.startActivity(intent);
+  	public void game_is_pic_finished() {
+  		KindredAlertDialog kad = new KindredAlertDialog(context,"CONGRATS!!\n\nYou solved the picture puzzle for " + PrefHelper.IMAGE_SUCCESS_AWARD + " coins!", false);
+  		kad.show();
+  		kad.setOnDismissListener(new OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				Intent intent = new Intent(context, FinishActivity.class);
+				intent.putExtra("userid", contact.datasourceid);
+				intent.putExtra("firstname", contact.firstname);		
+				intent.putExtra("guessname", contact.firstname);
+				intent.putExtra("filename", contact.datasourceid+".jpg");
+				intent.putExtra("image", true);
+				context.startActivity(intent);
+			}  			
+  		});  		
   	}
 	
   	@Override
@@ -215,7 +228,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				Log.i(getClass().getSimpleName(), "down press");
-
+				selectedGuessKey = -1;
 				selectedKey = -1;
 				selectedSectionX = -1;
 				selectedSectionY = -1;

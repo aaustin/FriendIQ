@@ -4,7 +4,11 @@ package com.friendiq.android;
 import java.util.ArrayList;
 import java.util.Random;
 import com.friendiq.android.GameView.MatrixReady;
+import com.friendiq.android.helpers.KindredAlertDialog;
+
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -29,7 +33,7 @@ public class SplitImageMatrix {
 
 	
 	public static final int NUMBER_SQUARE = 4;
-	private static final int MIX_PASSES = 3;
+	private static final int MIX_PASSES = 1;
 	
 	public int sectionMargin;
 	public int imageWidth;
@@ -38,7 +42,7 @@ public class SplitImageMatrix {
 	GameView gameView;
 	ImageView portraitView;
 	TextView txtCoins;
-	
+	PrefHelper pHelper;
 	Contact contact;
 	
 	Context context;
@@ -67,7 +71,8 @@ public class SplitImageMatrix {
 		this.portraitView = portraitView;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-
+		this.pHelper = new PrefHelper(context);
+		
 		sliding = false;
 		
 		this.sectionMargin = (int) (screenWidth*SECTION_MARGIN);
@@ -106,15 +111,18 @@ public class SplitImageMatrix {
   		int left = 0;
   		int top = 0;
   		ArrayList<ImageSection> tempSections = new ArrayList<ImageSection>();
+  		int originCounter = 0;
   		for (int x = 0; x < NUMBER_SQUARE; x++) {
   			for (int y = 0; y < NUMBER_SQUARE; y++) {
   				left = x*sectionSideLength;
   				top = y*sectionSideLength;
   				ImageSection img = new ImageSection();
+  				img.index = originCounter;
   	  			img.source = new Rect(left, top, left + sectionSideLength, top + sectionSideLength);
 				//Log.i(getClass().getSimpleName(), "x, y (" + x + ", " + y + ")");
   	  			//Log.i(SplitImageMatrix.class.getName(),"source section = " + img.source.toShortString());
   	  			tempSections.add(img);
+  	  			originCounter = originCounter + 1;
   			}  			
   		}
   		tempSections.get(tempSections.size()-1).isBlank = true;
@@ -236,18 +244,49 @@ public class SplitImageMatrix {
   		}
   	}
 
+  	private boolean check_image_puzzle() {
+  		boolean isFinished = true;
+  		int originCounter = 0;
+  		for (int x = 0; x < NUMBER_SQUARE; x++) {
+  			for (int y = 0; y < NUMBER_SQUARE; y++) {
+  				if (imgMatrix[x][y].index != originCounter) {
+  					isFinished = false;
+  					break;
+  				}
+  				originCounter = originCounter + 1;
+  			}
+  			if (!isFinished)
+  				break;
+  		}
+  		
+  		return isFinished;
+  	}
+  	
   	public void flash_image() {
-  		((Activity)context).runOnUiThread(new Runnable() {
-			@Override
-			public void run() {			
-				portraitView.setVisibility(View.INVISIBLE);		
-				//Log.i(getClass().getSimpleName(), "starting fade in ani");
-		  		Animation viewFadeinAni = AnimationUtils.loadAnimation(context, R.anim.fadein);
-		  		viewFadeinAni.setAnimationListener(new FadeInViewAnimationListener());
-		  		portraitView.startAnimation(viewFadeinAni);
-		  		portraitView.setImageBitmap(basePicture);		  		
-			}
-  		});
+  		if (pHelper.get_coin_count() >= PrefHelper.FLASH_COST) {
+  			KindredAlertDialog kad = new KindredAlertDialog(context, "Flashing the image costs " + PrefHelper.FLASH_COST + " coins.\n\nDo you want to see the image briefly?", true);
+  			kad.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					((Activity)context).runOnUiThread(new Runnable() {
+						@Override
+						public void run() {			
+							portraitView.setVisibility(View.INVISIBLE);		
+							//Log.i(getClass().getSimpleName(), "starting fade in ani");
+					  		Animation viewFadeinAni = AnimationUtils.loadAnimation(context, R.anim.fadein);
+					  		viewFadeinAni.setAnimationListener(new FadeInViewAnimationListener());
+					  		portraitView.startAnimation(viewFadeinAni);
+					  		portraitView.setImageBitmap(basePicture);		  		
+						}
+			  		});
+			  		pHelper.add_to_coin_count(-1*PrefHelper.FLASH_COST);
+			  		txtCoins.setText(pHelper.get_coin_count() + " coins");
+				}  			
+  			});  			
+  			kad.show();  		
+  		} else {
+  			show_not_enough_coins();
+  		}
   	}
   	
   	private class SlidingAnimationListener implements AnimationListener {
@@ -264,6 +303,10 @@ public class SplitImageMatrix {
   			
   			imgMatrix[destX][destY].sliding = false;  
   			sliding = false;
+  			
+  			if (check_image_puzzle())
+  				gameView.game_is_pic_finished();
+  				
 		}
 		@Override
 		public void onAnimationRepeat(Animation animation) {}
@@ -298,5 +341,10 @@ public class SplitImageMatrix {
 		public void onAnimationRepeat(Animation animation) {}
 		@Override
 		public void onAnimationStart(Animation animation) {}		
+	}
+	
+	private void show_not_enough_coins() {
+		KindredAlertDialog kad = new KindredAlertDialog(context, "You don't have enough coins for that!", false);
+		kad.show();
 	}
 }

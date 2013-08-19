@@ -3,7 +3,11 @@ package com.friendiq.android;
 import java.util.ArrayList;
 import java.util.Random;
 import com.friendiq.android.GameView.KeyboardReady;
+import com.friendiq.android.helpers.KindredAlertDialog;
+
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Rect;
 import android.widget.TextView;
 
@@ -29,6 +33,8 @@ public class KeyManager {
 	private int guessKeyMargin;
 	private int guessBottomMargin;
 	
+	GameView gameView;
+	PrefHelper pHelper;
 	TextView txtCoins;
 	
 	Context context;
@@ -77,11 +83,13 @@ public class KeyManager {
 	
 	KeyboardReady keysReady;
 	
-	public KeyManager(Context context, int screenHeight, int screenWidth, TextView txtCoins) {
+	public KeyManager(Context context, int screenHeight, int screenWidth, TextView txtCoins, GameView gameView) {
 		this.txtCoins = txtCoins;
 		this.context = context;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
+		this.gameView = gameView;
+		this.pHelper = new PrefHelper(context);
 		this.botMargin = (int) (screenHeight*BOT_MARGIN);
 		this.sideMargin = (int) (screenWidth*SIDE_MARGIN);
 		this.buttonKeyMargin = (int) (screenWidth*BUTTON_KEY_MARGIN);
@@ -233,37 +241,75 @@ public class KeyManager {
 	}
 	
 	public void delete_letter() {
-		if (!randomLetters.isEmpty()) {
-			String deletter = randomLetters.remove(0);
-			for (int i = 0; i < availableLetters.length; i++) {
-				if (availableLetters[i].equals(deletter)) {
-					availableLetters[i] = "-1";
-					break;
-				}
-			}
+		if (pHelper.get_coin_count() >= PrefHelper.DEL_LETTER_COST) {
+			KindredAlertDialog kad = new KindredAlertDialog(context, "Deleting a false letter costs " + PrefHelper.DEL_LETTER_COST + " coins.\n\nDo you want to proceed?", true);
+  			kad.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					boolean letterDeleted = false;
+
+					if (!randomLetters.isEmpty()) {
+						String deletter = randomLetters.remove(0);
+						for (int i = 0; i < availableLetters.length; i++) {
+							if (availableLetters[i].equals(deletter)) {
+								availableLetters[i] = "-1";
+								letterDeleted = true;
+								break;
+							}
+						}
+						if (letterDeleted) {
+							pHelper.add_to_coin_count(-1*PrefHelper.DEL_LETTER_COST);
+					  		txtCoins.setText(pHelper.get_coin_count() + " coins");
+						}
+					}
+				}  				
+  			});			
+  			kad.show();
+		} else {
+			show_not_enough_coins();
 		}
 	}
 	public boolean give_letter() {
-		boolean letterAwarded = false;
-		for (int i = 0; i < availableLetters.length; i++) {
-			if (firstname.contains(availableLetters[i])) {
-				for (int j = 0; j < guessLetters.length; j++) {
-					if (String.valueOf(firstname.charAt(j)).equals(availableLetters[i])) {
-						if (guessLetters[j].equals("-1")) {
-							guessLetters[j] = availableLetters[i];
-							availableLetters[i] = "-1";
-							letterAwarded = true;
-							break;
+		if (pHelper.get_coin_count() >= PrefHelper.ADD_LETTER_COST) {
+			KindredAlertDialog kad = new KindredAlertDialog(context, "Giving a correct letter costs " + PrefHelper.ADD_LETTER_COST + " coins.\n\nDo you want to proceed?", true);
+  			kad.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					boolean letterAwarded = false;
+					for (int i = 0; i < availableLetters.length; i++) {
+						if (firstname.contains(availableLetters[i])) {
+							for (int j = 0; j < guessLetters.length; j++) {
+								if (String.valueOf(firstname.charAt(j)).equals(availableLetters[i])) {
+									if (guessLetters[j].equals("-1")) {
+										guessLetters[j] = availableLetters[i];
+										availableLetters[i] = "-1";
+										letterAwarded = true;
+										break;
+									}
+								}
+							}
 						}
+						if (letterAwarded) {
+							pHelper.add_to_coin_count(-1*PrefHelper.ADD_LETTER_COST);
+					  		txtCoins.setText(pHelper.get_coin_count() + " coins");
+							break;
+						}						
 					}
-				}
-			}
-			if (letterAwarded)
-				break;
-		}
-		if (find_first_blank_guess() < 0)
-			return true;
-		else
+					
+					if (find_first_blank_guess() < 0)
+						gameView.game_is_word_finished();				
+				} 				
+  			});
+  			kad.show();		
+  			return false;
+		} else {
+			show_not_enough_coins();
 			return false;
+		}
+	}
+	
+	private void show_not_enough_coins() {
+		KindredAlertDialog kad = new KindredAlertDialog(context, "You don't have enough coins for that!", false);
+		kad.show();
 	}
 }
