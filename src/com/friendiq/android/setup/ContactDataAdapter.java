@@ -119,7 +119,7 @@ public class ContactDataAdapter {
 			 int sourceCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_SOURCE);
 			 do {
 				 currContact = new Contact();
-				// currContact.index = cursor.getInt(idCol);				 
+				 currContact.index = cursor.getInt(idCol);				 
 				 currContact.firstname = cursor.getString(firstCol);
 				 currContact.lastname = cursor.getString(lastCol);				
 				 currContact.datasourceid = cursor.getString(sourceidCol);

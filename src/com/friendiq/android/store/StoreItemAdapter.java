@@ -27,14 +27,14 @@ public class StoreItemAdapter extends BaseAdapter {
 	static final String SKU_300 = "coins_300";
 	static final String SKU_700 = "coins_700";
 	static final String SKU_1500 = "coins_1500";
-	static final String SKU_4500 = "coins_4500";
-	static final String SKU_10000 = "coins_10000";
+	static final String SKU_5700 = "coins_5700";
+	static final String SKU_13000 = "coins_13000";
 	
 	static final double SKU_300_COST = 0.99;
 	static final double SKU_700_COST = 1.99;
 	static final double SKU_1500_COST = 2.99;
-	static final double SKU_4500_COST = 9.99;
-	static final double SKU_10000_COST = 19.99;
+	static final double SKU_5700_COST = 9.99;
+	static final double SKU_13000_COST = 19.99;
 	
 	public int selectedIndex;
 	
@@ -55,8 +55,8 @@ public class StoreItemAdapter extends BaseAdapter {
 		skus.add(SKU_300);
 		skus.add(SKU_700);
 		skus.add(SKU_1500);
-		skus.add(SKU_4500);
-		skus.add(SKU_10000);
+		skus.add(SKU_5700);
+		skus.add(SKU_13000);
 		this.pHelper = new PrefHelper(context);
 		this.iapHelper = iapHelper;
 		this.context = context;
@@ -92,7 +92,7 @@ public class StoreItemAdapter extends BaseAdapter {
 		TextView title = (TextView) optionView.findViewById(R.id.text);
 		Button button = (Button) optionView.findViewById(R.id.cmdBuy);		
 		
-		if (skus.get(position).equals("coins_300"))	{
+		if (skus.get(position).equals(SKU_300))	{
 			button.setText("$" + String.format("%.2f", SKU_300_COST));
 			title.setText("300 coins");
 			button.setOnClickListener(new OnClickListener() {
@@ -104,7 +104,7 @@ public class StoreItemAdapter extends BaseAdapter {
 			                PurchaseFinishedListener, payload);
 				}			
 			});
-		} else if (skus.get(position).equals("coins_700"))	{
+		} else if (skus.get(position).equals(SKU_700))	{
 			button.setText("$" + String.format("%.2f", SKU_700_COST));
 			title.setText("700 coins");
 			button.setOnClickListener(new OnClickListener() {
@@ -116,7 +116,7 @@ public class StoreItemAdapter extends BaseAdapter {
 			                PurchaseFinishedListener, payload);
 				}			
 			});
-		} else if (skus.get(position).equals("coins_1500"))	{
+		} else if (skus.get(position).equals(SKU_1500))	{
 			button.setText("$" + String.format("%.2f", SKU_1500_COST));
 			title.setText("1500 coins");
 			button.setOnClickListener(new OnClickListener() {
@@ -128,27 +128,27 @@ public class StoreItemAdapter extends BaseAdapter {
 			                PurchaseFinishedListener, payload);
 				}			
 			});
-		} else if (skus.get(position).equals("coins_4500"))	{
-			button.setText("$" + String.format("%.2f", SKU_4500_COST));
-			title.setText("4500 coins");
+		} else if (skus.get(position).equals(SKU_5700))	{
+			button.setText("$" + String.format("%.2f", SKU_5700_COST));
+			title.setText("5700 coins");
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
 					progBar.show("purchasing..");
 					payload = Calendar.getInstance().toString();
-					iapHelper.launchPurchaseFlow(context, SKU_4500, RC_REQUEST, 
+					iapHelper.launchPurchaseFlow(context, SKU_5700, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
 			});
-		} else if (skus.get(position).equals("coins_10000"))	{
-			button.setText("$" + String.format("%.2f", SKU_10000_COST));
-			title.setText("10000 coins");
+		} else if (skus.get(position).equals(SKU_13000))	{
+			button.setText("$" + String.format("%.2f", SKU_13000_COST));
+			title.setText("13000 coins");
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
 					progBar.show("purchasing..");
 					payload = Calendar.getInstance().toString();
-					iapHelper.launchPurchaseFlow(context, SKU_10000, RC_REQUEST, 
+					iapHelper.launchPurchaseFlow(context, SKU_13000, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
 			});
@@ -193,10 +193,10 @@ public class StoreItemAdapter extends BaseAdapter {
 					pHelper.add_to_coin_count(700);
 	    		} else if (purchase.getSku().equals(SKU_1500))	{
 					pHelper.add_to_coin_count(1500);
-	    		} else if (purchase.getSku().equals(SKU_4500))	{
-					pHelper.add_to_coin_count(4500);
-	    		} else if (purchase.getSku().equals(SKU_10000))	{
-					pHelper.add_to_coin_count(10000);
+	    		} else if (purchase.getSku().equals(SKU_5700))	{
+					pHelper.add_to_coin_count(5700);
+	    		} else if (purchase.getSku().equals(SKU_13000))	{
+					pHelper.add_to_coin_count(13000);
 	    		}
 				callback.callback(1);
         	} else {

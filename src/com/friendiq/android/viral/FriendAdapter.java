@@ -35,6 +35,8 @@ public class FriendAdapter extends BaseAdapter {
 		this.contacts = contacts;
 		selected = new boolean[contacts.size()];
 		selectAll = true;
+		for (int i = 0; i < contacts.size(); i++)
+			selected[i] = true;
 	}
 	
 	public ArrayList<Contact> get_selected() {
