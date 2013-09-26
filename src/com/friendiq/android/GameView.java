@@ -1,9 +1,13 @@
 package com.friendiq.android;
 
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.GameActivity.SurfaceViewReady;
 import com.friendiq.android.finish.FinishActivity;
 import com.friendiq.android.helpers.KindredAlertDialog;
@@ -52,6 +56,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	KeyboardReady keyboardReady;
 	
 	SurfaceViewReady gameReady;
+	
+	long startTime;
+	int numberSlides;
 		
 	public GameView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -64,6 +71,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		created = false;
 		prepared = false;
 		pHelper = new PrefHelper(context);
+		
+		startTime = Calendar.getInstance().getTimeInMillis()/1000;
+		numberSlides = 0;
 		
 		imageMatrixReady = new MatrixReady();
 		keyboardReady = new KeyboardReady();
@@ -192,6 +202,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
   		// handle finished game stuff
 		Log.i(getClass().getSimpleName(), "FINISHED GAME");
 		
+		long finishTime = Calendar.getInstance().getTimeInMillis();
+  		Map<String, String> time = new Hashtable<String, String>();
+  		time.put("Duration_To_Solve_Name", String.valueOf(finishTime-startTime));
+  		FlurryAgent.logEvent("Duration_To_Solve_Name", time);
+		
 		drawingThread.save_current_grid_to_file();
 		
 		Intent intent = new Intent(context, FinishActivity.class);
@@ -207,6 +222,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		context.startActivity(intent);
   	}
   	public void game_is_pic_finished() {
+  		long finishTime = Calendar.getInstance().getTimeInMillis();
+  		Map<String, String> time = new Hashtable<String, String>();
+  		time.put("Duration_To_Solve_Name", String.valueOf(finishTime-startTime));
+  		FlurryAgent.logEvent("Duration_To_Solve_Sliding_Puzzle", time);
+  		
+  		Map<String, String> numMoves = new Hashtable<String, String>();
+  		numMoves.put("Number_Moves_To_Solve_Sliding_Puzzle", String.valueOf(numberSlides));
+  		FlurryAgent.logEvent("Number_Moves_To_Solve_Sliding_Puzzle", numMoves);
+  		
   		KindredAlertDialog kad = new KindredAlertDialog(context,"CONGRATS!!\n\nYou solved the picture puzzle for " + PrefHelper.IMAGE_SUCCESS_AWARD + " coins!", false);
   		kad.show();
   		kad.setOnDismissListener(new OnDismissListener() {
@@ -271,16 +295,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					Log.i(getClass().getSimpleName(), "didn't hit any main parts");
 
 					if (keyManager.cmdDeleteLetter.contains(xDown, yDown)) {
+						FlurryAgent.logEvent("Remove_Source_Letter_Pressed");
 						Log.i(getClass().getSimpleName(), "hit delete letter");
 						keyManager.delete_letter();
 						//drawingThread.redraw();
 					} else if (keyManager.cmdGiveLetter.contains(xDown, yDown)) {
 						Log.i(getClass().getSimpleName(), "hit give letter");
+						FlurryAgent.logEvent("Fill_Next_Letter_Pressed");
 						boolean finish = keyManager.give_letter();
 						//drawingThread.redraw();
 						if (finish)
 							game_is_word_finished();						
 					} else if (splitImage.cmdFlashPicture.contains(xDown, yDown)) {
+						FlurryAgent.logEvent("Flash_Image_Pressed");
 						Log.i(getClass().getSimpleName(), "hit flash image");
 						splitImage.flash_image();
 					}
@@ -291,16 +318,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				break;
 			case MotionEvent.ACTION_UP:
 				if (selectedKey >= 0) {
+					FlurryAgent.logEvent("Target_Tile_Pressed");
 					boolean finish = keyManager.press_available(selectedKey);
 					keyManager.availablePressed[selectedKey] = false;					
 					selectedKey = -1;
 					if (finish)
 						game_is_word_finished();
 				} else if (selectedGuessKey >= 0) {
+					FlurryAgent.logEvent("Letter_Tile_Pressed");
 					keyManager.press_guess(selectedGuessKey);
 					keyManager.guessPressed[selectedGuessKey] = false;
 					selectedGuessKey = -1;
 				} else if (selectedSectionX >= 0) {
+					numberSlides = numberSlides + 1;
+					FlurryAgent.logEvent("Track_Sliding_Puzzle_Moves");
 					splitImage.press_section(selectedSectionX, selectedSectionY);
 					selectedSectionX = -1;
 					selectedSectionY = -1;

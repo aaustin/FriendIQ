@@ -6,6 +6,7 @@ import com.facebook.FacebookException;
 import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.Contact;
 import com.friendiq.android.GameActivity;
 import com.friendiq.android.PrefHelper;
@@ -45,7 +46,7 @@ public class ViralActivity extends Activity {
 		chkSelectAll = (CheckBox) findViewById(R.id.chkSelectAll);
 		chkSelectAll.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {			
 				fAdapter.toggle_select_all();
 			}			
 		});

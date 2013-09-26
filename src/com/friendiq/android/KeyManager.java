@@ -2,12 +2,15 @@ package com.friendiq.android;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.GameView.KeyboardReady;
 import com.friendiq.android.helpers.KindredAlertDialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Rect;
 import android.widget.TextView;
 
@@ -82,6 +85,8 @@ public class KeyManager {
 	boolean[] availablePressed;
 	
 	KeyboardReady keysReady;
+	
+	boolean trackCompletion = false;
 	
 	public KeyManager(Context context, int screenHeight, int screenWidth, TextView txtCoins, GameView gameView) {
 		this.txtCoins = txtCoins;
@@ -247,7 +252,7 @@ public class KeyManager {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					boolean letterDeleted = false;
-
+					trackCompletion = false;
 					if (!randomLetters.isEmpty()) {
 						String deletter = randomLetters.remove(0);
 						for (int i = 0; i < availableLetters.length; i++) {
@@ -258,14 +263,26 @@ public class KeyManager {
 							}
 						}
 						if (letterDeleted) {
+							trackCompletion = true;
+							FlurryAgent.logEvent("Remove_Source_Letter_Completed");
 							pHelper.add_to_coin_count(-1*PrefHelper.DEL_LETTER_COST);
 					  		txtCoins.setText(pHelper.get_coin_count() + " coins");
 						}
 					}
 				}  				
-  			});			
+  			});		
+  			kad.setOnDismissListener(new OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					if (!trackCompletion)
+						FlurryAgent.logEvent("Remove_Source_Letter_Canceled");
+					else
+						trackCompletion = false;
+				}  				
+  			});
   			kad.show();
 		} else {
+			FlurryAgent.logEvent("Remove_Source_Letter_Not_Enough_Coins");
 			show_not_enough_coins();
 		}
 	}
@@ -276,6 +293,8 @@ public class KeyManager {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					boolean letterAwarded = false;
+					trackCompletion = false;
+					
 					for (int i = 0; i < availableLetters.length; i++) {
 						if (firstname.contains(availableLetters[i])) {
 							for (int j = 0; j < guessLetters.length; j++) {
@@ -290,6 +309,8 @@ public class KeyManager {
 							}
 						}
 						if (letterAwarded) {
+							trackCompletion = true;
+							FlurryAgent.logEvent("Fill_Next_Letter_Completed");
 							pHelper.add_to_coin_count(-1*PrefHelper.ADD_LETTER_COST);
 					  		txtCoins.setText(pHelper.get_coin_count() + " coins");
 							break;
@@ -300,9 +321,19 @@ public class KeyManager {
 						gameView.game_is_word_finished();				
 				} 				
   			});
+  			kad.setOnDismissListener(new OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					if (!trackCompletion)
+						FlurryAgent.logEvent("Fill_Next_Letter_Canceled");
+					else
+						trackCompletion = false;
+				}  				
+  			});
   			kad.show();		
   			return false;
 		} else {
+			FlurryAgent.logEvent("Fill_Next_Letter_Not_Enough_Coins");
 			show_not_enough_coins();
 			return false;
 		}

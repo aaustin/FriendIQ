@@ -2,6 +2,8 @@ package com.friendiq.android.setup;
 
 import com.facebook.Session;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.flurry.android.FlurryAgent;
@@ -14,7 +16,8 @@ import com.friendiq.android.helpers.NetworkProgressBar;
 import com.friendiq.android.viral.ViralActivity;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.util.Base64;
+//import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,6 +27,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 
 public class FacebookSignupActivity extends Activity {
 	private static final long UPDATE_INTERVAL = 200;
@@ -65,6 +72,7 @@ public class FacebookSignupActivity extends Activity {
 		cmdPhoneContacts = (TextView) findViewById(R.id.txtContacts);
 		cmdPhoneContacts.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				FlurryAgent.logEvent("AddressBook_Play_Pressed");
 				start_game();
 			}
 		});
@@ -75,6 +83,7 @@ public class FacebookSignupActivity extends Activity {
 		cmdFacebookLogin = (Button) findViewById(R.id.cmdFBlogin);		
 		cmdFacebookLogin.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {					
+				FlurryAgent.logEvent("Facebook_Play_Pressed");
 				progBar.show("connecting to Facebook...");
 				pHelper.set_facebook_contacts_service_status(true);
 				fbContacts.login_and_download_facebook();
@@ -92,19 +101,46 @@ public class FacebookSignupActivity extends Activity {
 		}
 		
 		if (!pHelper.check_enable_online()) {
+			FlurryAgent.logEvent("Internets_Yes");
 			KindredAlertDialog kad = new KindredAlertDialog(context, "Friend IQ requires a stable internet connection for use.\n\nPlease wait until you have better service or connect to wifi.\n\nSorry!", false);			
 			kad.setOnDismissListener(new OnDismissListener() {
 				@Override
 				public void onDismiss(DialogInterface dialog) {
-					Log.i(getClass().getSimpleName(), "DISMISSED");
+					//Log.i(getClass().getSimpleName(), "DISMISSED");
 					finish();
 				}								
 			});
 			kad.show();
-		}
+		} else 
+			FlurryAgent.logEvent("Internets_No");
+
+		FlurryAgent.logEvent("Intro_Duration" , null, true);
+		//printHashKey();
 	}
 	
+	public void printHashKey() {
+
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo ("com.friendiq.android",
+                    PackageManager.GET_SIGNATURES );
+            for (Signature signature : info.signatures ) {
+                MessageDigest md = MessageDigest. getInstance("SHA");
+                md.update (signature. toByteArray());
+                //Log.i("TEMPTAGHASH KEY:",
+                //        Base64.encodeToString( md.digest (), Base64. DEFAULT));
+            }
+        } catch (NameNotFoundException e) {
+               e.printStackTrace ();
+        } catch (NoSuchAlgorithmException e) {
+               e.printStackTrace ();
+        }
+
+    }
+
+	
 	private void start_viral() {
+		FlurryAgent.endTimedEvent("Intro_Duration");
+
 		Intent i = new Intent(getApplicationContext(), ViralActivity.class);
 		startActivity(i);
 	}
@@ -124,14 +160,14 @@ public class FacebookSignupActivity extends Activity {
              		public void run() { 		 			
              			if (!pHelper.get_facebook_contact_service_status()) {	
              				progBar.show("finished!");
-             				Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");
+             				//Log.i(DatabaseHelper.class.getName(),"FINISHED FB DOWNLOAD");
              				start_viral();
              				pHelper.set_first_bootup_status(false);
              				progBar.hide();
              				fbtimer.cancel();
              			} else if (pHelper.get_facebook_failed()) {
              				progBar.show("failed to connect!");
-             				Log.i(DatabaseHelper.class.getName(),"FAILED FB DOWNLOAD");             				
+             				//Log.i(DatabaseHelper.class.getName(),"FAILED FB DOWNLOAD");             				
              				progBar.hide();
              				fbtimer.cancel();
              			}

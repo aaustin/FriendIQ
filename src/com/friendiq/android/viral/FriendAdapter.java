@@ -3,6 +3,7 @@ package com.friendiq.android.viral;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.billutil.IabResult;
 import com.friendiq.android.billutil.Purchase;
 import com.friendiq.android.Contact;
@@ -20,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 public class FriendAdapter extends BaseAdapter {
@@ -49,8 +52,13 @@ public class FriendAdapter extends BaseAdapter {
 	}
 	
 	public void toggle_select_all() {
-		if (selectAll) selectAll = false;
-		else selectAll = true;
+		if (selectAll) {
+			FlurryAgent.logEvent("DeSelect_All_Friends");
+			selectAll = false;
+		} else {
+			FlurryAgent.logEvent("Select_All_Friends");
+			selectAll = true;
+		}
 		for (int i = 0; i < contacts.size(); i++)
 			selected[i] = selectAll;
 		
@@ -73,7 +81,7 @@ public class FriendAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		final View optionView;
 		if (convertView == null) {
 			LayoutInflater inflater = context.getLayoutInflater();
@@ -83,6 +91,16 @@ public class FriendAdapter extends BaseAdapter {
 		}
 	
 		CheckBox chk = (CheckBox) optionView.findViewById(R.id.checked);
+		chk.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (isChecked) {
+					FlurryAgent.logEvent("Select_One_Friend");
+				}
+				selected[position] = isChecked;
+			}			
+		});
 		if (selected[position])
 			chk.setChecked(true);
 		else

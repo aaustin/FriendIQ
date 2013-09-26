@@ -3,12 +3,15 @@ package com.friendiq.android;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.GameView.MatrixReady;
 import com.friendiq.android.helpers.KindredAlertDialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -63,6 +66,8 @@ public class SplitImageMatrix {
 	int destX;
 	int destY;
 	boolean sliding;
+	
+	boolean trackCompletion = false;
 	
 	public SplitImageMatrix(Context context, int screenHeight, int screenWidth, ImageView portraitView, GameView gameView, TextView txtCoins) {
 		this.gameView = gameView;
@@ -268,6 +273,8 @@ public class SplitImageMatrix {
   			kad.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
+					trackCompletion = true;
+					FlurryAgent.logEvent("Flash_Image_Completed");
 					((Activity)context).runOnUiThread(new Runnable() {
 						@Override
 						public void run() {			
@@ -282,9 +289,19 @@ public class SplitImageMatrix {
 			  		pHelper.add_to_coin_count(-1*PrefHelper.FLASH_COST);
 			  		txtCoins.setText(pHelper.get_coin_count() + " coins");
 				}  			
-  			});  			
+  			});  		
+  			kad.setOnDismissListener(new OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					if (!trackCompletion)
+						FlurryAgent.logEvent("Flash_Image_Canceled");
+					else
+						trackCompletion = false;
+				}  				
+  			});
   			kad.show();  		
   		} else {
+  			FlurryAgent.logEvent("Flash_Image_Not_Enough_Coins");
   			show_not_enough_coins();
   		}
   	}

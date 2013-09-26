@@ -10,6 +10,7 @@ import com.facebook.FacebookException;
 import com.facebook.Session;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.GameActivity;
 import com.friendiq.android.PrefHelper;
 import com.friendiq.android.R;
@@ -62,6 +63,8 @@ public class FinishActivity extends Activity {
         
 		progBar = new NetworkProgressBar(this);
 		
+		
+		
 		final CheckBox chkAskForHelp = (CheckBox) findViewById(R.id.chkAskForHelp);
         TextView txtMessage = (TextView) findViewById(R.id.txtMessage);
         ImageView imgCorrect = (ImageView) findViewById(R.id.imgCorrect);
@@ -69,6 +72,8 @@ public class FinishActivity extends Activity {
         
         if (this.guessName.equals(this.actualName) || this.picFinished) {
         	chkAskForHelp.setVisibility(View.INVISIBLE);
+        	FlurryAgent.logEvent("Duration_On_Correct_Screen", true);
+        	
         	if (this.picFinished)
         		pHelper.add_to_coin_count(PrefHelper.IMAGE_SUCCESS_AWARD);
         	else
@@ -81,6 +86,9 @@ public class FinishActivity extends Activity {
         	cmdNext.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					FlurryAgent.endTimedEvent("Duration_On_Correct_Screen");
+					FlurryAgent.endTimedEvent("Duration_On_Incorrect_Screen");
+
 					Intent intent = new Intent(context, GameActivity.class);
 					intent.putExtra("userid", "-1");
 					context.startActivity(intent);
@@ -88,6 +96,7 @@ public class FinishActivity extends Activity {
         	});
         } else {
         	chkAskForHelp.setVisibility(View.VISIBLE);
+        	FlurryAgent.logEvent("Duration_On_Incorrect_Screen", true);
 
         	imgCorrect.setImageDrawable(this.getResources().getDrawable(R.drawable.ico_wrong));
         	txtMessage.setText("Wrong!");
@@ -108,6 +117,9 @@ public class FinishActivity extends Activity {
 						}).start();
 						
 					} else {
+						FlurryAgent.endTimedEvent("Duration_On_Correct_Screen");
+						FlurryAgent.endTimedEvent("Duration_On_Incorrect_Screen");
+						
 						Intent intent = new Intent(context, GameActivity.class);
 						intent.putExtra("userid", String.valueOf(userid));
 						context.startActivity(intent);
@@ -147,10 +159,13 @@ public class FinishActivity extends Activity {
 							                if (error == null) {
 							                    final String postId = values.getString("post_id");
 							                    if (postId != null) {
+							                    	FlurryAgent.logEvent("Incorrect_Screen_User_Posted_Facebook_Publish");
+
 							                    	Intent intent = new Intent(context, GameActivity.class);
 													intent.putExtra("userid", String.valueOf(userid));
 													context.startActivity(intent);
-							                    } 
+							                    }  else
+							                    	FlurryAgent.logEvent("Incorrect_Screen_User_Canceled_Facebook_Publish");
 							                } 
 							            }
 
@@ -160,7 +175,8 @@ public class FinishActivity extends Activity {
 						}				    
 				    });				
 					
-				} catch (JSONException e) {					
+				} catch (JSONException e) {			
+					FlurryAgent.logEvent("Incorrect_Screen_User_Canceled_Facebook_Publish_No_Login");
 					e.printStackTrace();
 				}
 				

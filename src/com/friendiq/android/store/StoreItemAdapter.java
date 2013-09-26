@@ -3,6 +3,7 @@ package com.friendiq.android.store;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.flurry.android.FlurryAgent;
 import com.friendiq.android.billutil.IabResult;
 import com.friendiq.android.billutil.Purchase;
 import com.friendiq.android.PrefHelper;
@@ -97,9 +98,10 @@ public class StoreItemAdapter extends BaseAdapter {
 			title.setText("300 coins");
 			button.setOnClickListener(new OnClickListener() {
 				@Override
-				public void onClick(View v) {		
+				public void onClick(View v) {	
+					FlurryAgent.logEvent("Purchased_Coins_1_Pressed");
 					progBar.show("purchasing..");
-					payload = Calendar.getInstance().toString();
+					payload = String.valueOf(Calendar.getInstance().getTimeInMillis());
 					iapHelper.launchPurchaseFlow(context, SKU_300, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
@@ -110,8 +112,9 @@ public class StoreItemAdapter extends BaseAdapter {
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
+					FlurryAgent.logEvent("Purchased_Coins_2_Pressed");
 					progBar.show("purchasing..");
-					payload = Calendar.getInstance().toString();
+					payload = String.valueOf(Calendar.getInstance().getTimeInMillis());
 					iapHelper.launchPurchaseFlow(context, SKU_700, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
@@ -122,8 +125,9 @@ public class StoreItemAdapter extends BaseAdapter {
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
+					FlurryAgent.logEvent("Purchased_Coins_3_Pressed");
 					progBar.show("purchasing..");
-					payload = Calendar.getInstance().toString();
+					payload = String.valueOf(Calendar.getInstance().getTimeInMillis());
 					iapHelper.launchPurchaseFlow(context, SKU_1500, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
@@ -134,8 +138,9 @@ public class StoreItemAdapter extends BaseAdapter {
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
+					FlurryAgent.logEvent("Purchased_Coins_4_Pressed");
 					progBar.show("purchasing..");
-					payload = Calendar.getInstance().toString();
+					payload = String.valueOf(Calendar.getInstance().getTimeInMillis());
 					iapHelper.launchPurchaseFlow(context, SKU_5700, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
@@ -146,8 +151,9 @@ public class StoreItemAdapter extends BaseAdapter {
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {		
+					FlurryAgent.logEvent("Purchased_Coins_5_Pressed");
 					progBar.show("purchasing..");
-					payload = Calendar.getInstance().toString();
+					payload = String.valueOf(Calendar.getInstance().getTimeInMillis());
 					iapHelper.launchPurchaseFlow(context, SKU_13000, RC_REQUEST, 
 			                PurchaseFinishedListener, payload);
 				}			
@@ -188,14 +194,19 @@ public class StoreItemAdapter extends BaseAdapter {
         	if (result.isSuccess()) {
 				progBar.change_message("success!");
 				if (purchase.getSku().equals(SKU_300)) {
+					FlurryAgent.logEvent("Purchased_Coins_Completed_300");
 					pHelper.add_to_coin_count(300);
 				} else if (purchase.getSku().equals(SKU_700))	{
+					FlurryAgent.logEvent("Purchased_Coins_Completed_700");
 					pHelper.add_to_coin_count(700);
 	    		} else if (purchase.getSku().equals(SKU_1500))	{
+	    			FlurryAgent.logEvent("Purchased_Coins_Completed_1500");
 					pHelper.add_to_coin_count(1500);
 	    		} else if (purchase.getSku().equals(SKU_5700))	{
+	    			FlurryAgent.logEvent("Purchased_Coins_Completed_5700");
 					pHelper.add_to_coin_count(5700);
 	    		} else if (purchase.getSku().equals(SKU_13000))	{
+	    			FlurryAgent.logEvent("Purchased_Coins_Completed_13000");
 					pHelper.add_to_coin_count(13000);
 	    		}
 				callback.callback(1);

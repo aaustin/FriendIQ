@@ -1,5 +1,8 @@
 package com.friendiq.android;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import com.flurry.android.FlurryAgent;
 import com.friendiq.android.helpers.KindredAlertDialog;
 import com.friendiq.android.helpers.NetworkProgressBar;
@@ -46,6 +49,10 @@ public class GameActivity extends Activity {
 		txtCoins = (TextView) findViewById(R.id.txtCoins);
 		
 		txtFriendIQ.setText(pHelper.get_friend_iq() + " ");		
+		Map<String, String> iq = new Hashtable<String, String>();
+		iq.put("IQ_Level_Cumulative", String.valueOf(pHelper.get_friend_iq()));
+  		FlurryAgent.logEvent("IQ_Level_Cumulative", iq);
+  		
 		cmdBuyCoins = (Button) findViewById(R.id.cmdStore);		
 		
 		gameView = (GameView) findViewById(R.id.gameView);
@@ -62,6 +69,7 @@ public class GameActivity extends Activity {
         cmdBuyCoins.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				FlurryAgent.logEvent("Store_Button_Pressed");
 				Intent intent = new Intent(context, StoreActivity.class);
 				intent.putExtra("userid", String.valueOf(userid));
 				Log.i(getClass().getSimpleName(), "going to store with index = " + userid);

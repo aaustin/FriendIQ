@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: C:\\Development\\WorkSpace\\FriendIQ\\src\\com\\android\\vending\\billing\\IInAppBillingService.aidl
+ * Original file: G:\\Dropbox\\Development\\WorkSpace\\FriendIQ\\src\\com\\android\\vending\\billing\\IInAppBillingService.aidl
  */
 package com.android.vending.billing;
 /**
